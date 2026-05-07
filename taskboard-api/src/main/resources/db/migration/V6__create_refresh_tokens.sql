@@ -1,15 +1,3 @@
-id (PK)
-user_id (FK → users.id, NOT NULL)
-session_id (UUID, NOT NULL) ← identifica el dispositivo/sesión
-token_hash (UNIQUE, NOT NULL)
-created_at (NOT NULL)
-last_used_at (NOT NULL o NULL)
-expires_at (NOT NULL)
-revoked_at (NULL)
-replaced_by_token_id (FK → refresh_tokens.id, NULL) (útil para rotación)
-user_agent (NULL)
-ip (NULL)
-
 CREATE TABLE refresh_tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,

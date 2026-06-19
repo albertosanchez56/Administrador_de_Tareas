@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tareas.taskboard.dto.LoginRequest;
+import com.tareas.taskboard.dto.LoginResponse;
 import com.tareas.taskboard.dto.RegisterRequest;
 import com.tareas.taskboard.dto.UserResponse;
+import com.tareas.taskboard.service.AuthService;
 import com.tareas.taskboard.service.UserService;
 
 import jakarta.validation.Valid;
@@ -18,9 +21,11 @@ import jakarta.validation.Valid;
 public class AuthController {
     
     private final UserService userService;
-
-    public AuthController(UserService userService) {
+    private final AuthService authService;
+    
+    public AuthController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping("/register")
@@ -28,4 +33,8 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(request));
     }
     
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
+    }
 }

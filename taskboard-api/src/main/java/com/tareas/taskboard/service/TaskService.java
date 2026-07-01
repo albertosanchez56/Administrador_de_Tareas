@@ -1,6 +1,7 @@
 package com.tareas.taskboard.service;
 
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.Task;
 import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.dto.TaskResponse;
+import com.tareas.taskboard.dto.UpdateTaskStatusRequest;
 import com.tareas.taskboard.repository.BoardRepository;
 import com.tareas.taskboard.repository.TaskRepository;
 import com.tareas.taskboard.repository.UserRepository;
@@ -60,6 +62,21 @@ public class TaskService {
             .map(TaskResponse::fromTask)
             .toList();
     }
+    // Cambia el status de una tarea (TODO/DOING/DONE). Tipo "mover tarjeta" en Trello.
+    @Transactional
+    public TaskResponse updateTaskStatus(Long boardId, Long taskId, UpdateTaskStatusRequest request, Long userId) {
+        Board board = getBoardIfOwner(boardId, userId);
+
+        // Busco la task dentro de ese board (evita actualizar una task de otro tablero).
+        Task task = taskRepository.findByIdAndBoard(taskId, board)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        task.setStatus(request.status());
+        task.setUpdatedAt(Instant.now());
+
+        Task saved = taskRepository.save(task);
+        return TaskResponse.fromTask(saved);
+    }
 
     // Método privado para no repetir la misma lógica en create y list.
     // Devuelve el board solo si existe y el userId es el owner.
@@ -74,4 +91,6 @@ public class TaskService {
 
         return board;
     }
+
+    
 }

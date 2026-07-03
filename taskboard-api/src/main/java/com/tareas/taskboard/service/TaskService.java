@@ -10,6 +10,9 @@ import com.tareas.taskboard.dto.CreateTaskRequest;
 import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.Task;
 import com.tareas.taskboard.entity.User;
+import com.tareas.taskboard.exception.AccessDeniedException;
+import com.tareas.taskboard.exception.BoardNotFoundException;
+import com.tareas.taskboard.exception.TaskNotFoundException;
 import com.tareas.taskboard.dto.TaskResponse;
 import com.tareas.taskboard.dto.UpdateTaskStatusRequest;
 import com.tareas.taskboard.repository.BoardRepository;
@@ -69,7 +72,7 @@ public class TaskService {
 
         // Busco la task dentro de ese board (evita actualizar una task de otro tablero).
         Task task = taskRepository.findByIdAndBoard(taskId, board)
-            .orElseThrow(() -> new RuntimeException("Task not found"));
+            .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         task.setStatus(request.status());
         task.setUpdatedAt(Instant.now());
@@ -82,11 +85,11 @@ public class TaskService {
     // Devuelve el board solo si existe y el userId es el owner.
     private Board getBoardIfOwner(Long boardId, Long userId) {
         Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new RuntimeException("Board not found"));
+            .orElseThrow(() -> new BoardNotFoundException("Board not found"));
 
         // De momento solo el owner tiene acceso; luego ampliaré con board_members.
         if (!board.getOwner().getId().equals(userId)) {
-            throw new RuntimeException("User is not the owner of the board");
+            throw new AccessDeniedException("User is not the owner of the board");
         }
 
         return board;

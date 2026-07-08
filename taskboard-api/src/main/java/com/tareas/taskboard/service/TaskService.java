@@ -13,8 +13,10 @@ import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.exception.AccessDeniedException;
 import com.tareas.taskboard.exception.BoardNotFoundException;
 import com.tareas.taskboard.exception.TaskNotFoundException;
+import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.dto.TaskResponse;
 import com.tareas.taskboard.dto.UpdateTaskStatusRequest;
+import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
 import com.tareas.taskboard.repository.TaskRepository;
 import com.tareas.taskboard.repository.UserRepository;
@@ -27,18 +29,20 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
-    public TaskService(TaskRepository taskRepository, BoardRepository boardRepository, UserRepository userRepository) {
+    public TaskService(TaskRepository taskRepository, BoardRepository boardRepository, UserRepository userRepository, BoardMemberRepository boardMemberRepository) {
         this.taskRepository = taskRepository;
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
+        this.boardMemberRepository = boardMemberRepository;
     }
 
     // Crea una tarea dentro de un board. userId viene del JWT.
     @Transactional // necesario por open-in-view=false y relaciones LAZY al mapear el DTO
     public TaskResponse createTask(CreateTaskRequest request, Long boardId, Long userId) {
         // Busca el board y comprueba que el usuario autenticado es el owner.
-        Board board = getBoardIfOwner(boardId, userId);
+        Board board = getBoardIfMember(boardId, userId);
 
         // Busco al usuario que crea la tarea (el autenticado).
         User creator = userRepository.findById(userId)
@@ -55,7 +59,7 @@ public class TaskService {
     // Lista las tareas de un board concreto.
     @Transactional // igual que createTask: leo relaciones LAZY al convertir a TaskResponse
     public List<TaskResponse> getTasksByBoard(Long boardId, Long userId) {
-        Board board = getBoardIfOwner(boardId, userId);
+        Board board = getBoardIfMember(boardId, userId);
 
         List<Task> tasks = taskRepository.findByBoard(board);
 
@@ -68,7 +72,7 @@ public class TaskService {
     // Cambia el status de una tarea (TODO/DOING/DONE). Tipo "mover tarjeta" en Trello.
     @Transactional
     public TaskResponse updateTaskStatus(Long boardId, Long taskId, UpdateTaskStatusRequest request, Long userId) {
-        Board board = getBoardIfOwner(boardId, userId);
+        Board board = getBoardIfMember(boardId, userId);
 
         // Busco la task dentro de ese board (evita actualizar una task de otro tablero).
         Task task = taskRepository.findByIdAndBoard(taskId, board)
@@ -83,17 +87,20 @@ public class TaskService {
 
     // Método privado para no repetir la misma lógica en create y list.
     // Devuelve el board solo si existe y el userId es el owner.
-    private Board getBoardIfOwner(Long boardId, Long userId) {
+    private Board getBoardIfMember(Long boardId, Long userId) {
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> new BoardNotFoundException("Board not found"));
 
         // De momento solo el owner tiene acceso; luego ampliaré con board_members.
-        if (!board.getOwner().getId().equals(userId)) {
+        if (!board.getOwner().getId().equals(userId) && !existsByBoardAndUser(board, userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
             throw new AccessDeniedException("User is not the owner of the board");
         }
 
         return board;
     }
 
+    private boolean existsByBoardAndUser(Board board, User user){
+        return boardMemberRepository.existsByBoardAndUser(board, user);
+    }
     
 }

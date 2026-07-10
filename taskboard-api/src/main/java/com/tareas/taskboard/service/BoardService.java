@@ -3,12 +3,17 @@ package com.tareas.taskboard.service;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
+import com.tareas.taskboard.dto.InviteMemberRequest;
 import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.BoardMembers;
 import com.tareas.taskboard.entity.BoardMembers.Role;
 import com.tareas.taskboard.entity.User;
+import com.tareas.taskboard.exception.AccessDeniedException;
+import com.tareas.taskboard.exception.BoardNotFoundException;
+import com.tareas.taskboard.exception.MemberAlreadyExistsException;
 import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
@@ -63,5 +68,32 @@ public class BoardService {
                 .map(BoardMembers::getBoard)
                 .map(BoardResponse::from)
                 .toList();
+    }
+
+    // Añade un miembro al board. Solo el owner puede invitar; requesterUserId viene del JWT.
+    @Transactional // necesario por relaciones LAZY al mapear BoardMemberResponse
+    public BoardMemberResponse addMember(Long boardId, InviteMemberRequest request, Long requesterUserId) {
+        // Compruebo que el board existe.
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        // Solo el dueño del tablero puede invitar a otros usuarios.
+        if (!board.getOwner().getId().equals(requesterUserId)) {
+            throw new AccessDeniedException("You are not allowed to add members to this board");
+        }
+
+        // Busco al usuario invitado por email (debe estar registrado en la app).
+        User invitedUser = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Evito duplicados: el owner ya está en board_members y un member no se invita dos veces.
+        if (boardMemberRepository.existsByBoardAndUser(board, invitedUser)) {
+            throw new MemberAlreadyExistsException("User already a member of this board");
+        }
+
+        BoardMembers boardMember = new BoardMembers(board, invitedUser, Role.MEMBER);
+        BoardMembers saved = boardMemberRepository.save(boardMember);
+
+        return BoardMemberResponse.from(saved);
     }
 }

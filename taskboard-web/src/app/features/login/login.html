@@ -1,0 +1,120 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<section class="login">
+  <div class="login__frame">
+    <div class="login__canvas">
+      <div class="login__atmosphere" aria-hidden="true">
+        <div class="login__columns">
+          <div class="login__column login__column--a">
+            <p class="login__column-title">Por hacer</p>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--teal"></span>
+              <p class="login__card-title">Preparar reunión semanal</p>
+              <p class="login__card-meta">Hoy · Ana</p>
+            </article>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--coral"></span>
+              <p class="login__card-title">Revisar presupuesto</p>
+              <p class="login__card-meta">Esta semana</p>
+            </article>
+            <article class="login__card login__card--ghost">
+              <span class="login__card-bar"></span>
+              <p class="login__card-title">Actualizar documentación</p>
+            </article>
+          </div>
+
+          <div class="login__column login__column--b">
+            <p class="login__column-title">En curso</p>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--coral"></span>
+              <p class="login__card-title">Diseño de la campaña</p>
+              <p class="login__card-meta">En progreso</p>
+            </article>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--teal"></span>
+              <p class="login__card-title">Onboarding del equipo</p>
+              <p class="login__card-meta">2 comentarios</p>
+            </article>
+          </div>
+
+          <div class="login__column login__column--c">
+            <p class="login__column-title">Hecho</p>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--teal"></span>
+              <p class="login__card-title">Lanzar newsletter</p>
+              <p class="login__card-meta">Completado</p>
+            </article>
+            <article class="login__card">
+              <span class="login__card-bar login__card-bar--coral"></span>
+              <p class="login__card-title">Entregar propuesta</p>
+              <p class="login__card-meta">Completado</p>
+            </article>
+            <article class="login__card login__card--ghost">
+              <span class="login__card-bar"></span>
+              <p class="login__card-title">Cerrar feedback Q1</p>
+            </article>
+          </div>
+        </div>
+        <div class="login__grain"></div>
+      </div>
+
+      <div class="login__shell">
+        <header class="login__brand">
+          <p class="login__mark">Taskboard</p>
+          <h1 class="login__headline">Ordena el caos.<br />Mueve el trabajo.</h1>
+          <p class="login__lede">
+            Entra para ver tus tableros, asignar tareas y avanzar columna a columna.
+          </p>
+        </header>
+
+        <form class="login__form" novalidate>
+          <!-- Conecta (submit) en el .ts -->
+          <div class="login__field">
+            <label class="login__label" for="username">Usuario</label>
+            <input
+              class="login__input"
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              placeholder="tu usuario"
+              required
+            />
+          </div>
+
+          <div class="login__field">
+            <label class="login__label" for="password">Contraseña</label>
+            <input
+              class="login__input"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <!-- Muestra este bloque cuando falle el login: *ngIf / @if (error) -->
+          <p class="login__error" hidden role="alert">
+            No hemos podido entrar. Revisa usuario y contraseña.
+          </p>
+
+          <button class="login__submit" type="submit">
+            Entrar al tablero
+          </button>
+        </form>
+
+        <p class="login__footer">
+          ¿Aún no tienes cuenta?
+          <a class="login__link" href="#">Crear una</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

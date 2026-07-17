@@ -10,7 +10,9 @@ import com.tareas.taskboard.entity.Task;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     
-    List<Task> findByBoard(Board board);
+    List<Task> findByBoardOrderByStatusAscPositionAsc(Board board);
 
     Optional<Task> findByIdAndBoard(Long taskId, Board board);
+
+    long countByBoardAndStatus(Board board, Task.TaskStatus status);
 }

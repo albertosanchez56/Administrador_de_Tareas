@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tareas.taskboard.dto.CreateTaskRequest;
 import com.tareas.taskboard.dto.TaskResponse;
-import com.tareas.taskboard.dto.UpdateTaskStatusRequest;
+import com.tareas.taskboard.dto.UpdateTaskRequest;
 import com.tareas.taskboard.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -55,8 +55,8 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}")
-    public ResponseEntity<TaskResponse> updateStatus(@PathVariable Long boardId, @PathVariable Long taskId,@Valid @RequestBody UpdateTaskStatusRequest request){
-        TaskResponse response = taskService.updateTaskStatus(boardId, taskId, request, getAuthenticatedUserId());
+    public ResponseEntity<TaskResponse> updateStatus(@PathVariable Long boardId, @PathVariable Long taskId,@Valid @RequestBody UpdateTaskRequest request){
+        TaskResponse response = taskService.updateTask(boardId, taskId, request, getAuthenticatedUserId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

@@ -15,7 +15,7 @@ import com.tareas.taskboard.exception.TaskNotFoundException;
 import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.dto.TaskResponse;
 import com.tareas.taskboard.dto.UpdateTaskRequest;
-import com.tareas.taskboard.dto.UpdateTaskStatusRequest;
+
 import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
 import com.tareas.taskboard.repository.TaskRepository;
@@ -65,6 +65,9 @@ public class TaskService {
 
         task.setDueAt(request.dueAt());
 
+        long nextPosition = taskRepository.countByBoardAndStatus(board, Task.TaskStatus.TODO);
+        task.setPosition((int) nextPosition);
+
         Task saved = taskRepository.save(task);
 
         // Mapeo a DTO dentro de la transacción (evita problemas con relaciones LAZY).
@@ -76,7 +79,7 @@ public class TaskService {
     public List<TaskResponse> getTasksByBoard(Long boardId, Long userId) {
         Board board = getBoardIfMember(boardId, userId);
 
-        List<Task> tasks = taskRepository.findByBoard(board);
+        List<Task> tasks = taskRepository.findByBoardOrderByStatusAscPositionAsc(board);
 
         // Convierto cada Task a DTO para no exponer la entidad.
 
@@ -88,7 +91,7 @@ public class TaskService {
     // Cambia el status de una tarea (TODO/DOING/DONE). Tipo "mover tarjeta" en
     // Trello.
     @Transactional
-    public TaskResponse updateTask(Long boardId, Long taskId, UpdateTaskRequest  request, Long userId) {
+    public TaskResponse updateTask(Long boardId, Long taskId, UpdateTaskRequest request, Long userId) {
         Board board = getBoardIfMember(boardId, userId);
 
         // Busco la task dentro de ese board (evita actualizar una task de otro
@@ -96,20 +99,31 @@ public class TaskService {
         Task task = taskRepository.findByIdAndBoard(taskId, board)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
-        if(request.status() !=null){
-            task.setStatus(request.status());
+        if (request.position() != null) {
+            task.setPosition(request.position());
         }
 
-        if(request.assignedToUserId() != null){
-            User assignedTo = userRepository.findById(request.assignedToUserId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        if (request.status() != null) {
+            task.setStatus(request.status());
+
+            // Si no mandan position, la pongo al final de la columna nueva
+            if (request.position() == null) {
+                long next = taskRepository.countByBoardAndStatus(board, request.status());
+                task.setPosition((int) next);
+            }
+        }
+
+        if (request.assignedToUserId() != null) {
+            User assignedTo = userRepository.findById(request.assignedToUserId())
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
             if (!board.getOwner().getId().equals(assignedTo.getId())
-                && !existsByBoardAndUser(board, assignedTo)) {
-            throw new AccessDeniedException("Assigned user is not a member of this board");
+                    && !existsByBoardAndUser(board, assignedTo)) {
+                throw new AccessDeniedException("Assigned user is not a member of this board");
             }
             task.setAssignedTo(assignedTo);
         }
 
-        if(request.dueAt() != null){
+        if (request.dueAt() != null) {
             task.setDueAt(request.dueAt());
         }
         task.setUpdatedAt(Instant.now());

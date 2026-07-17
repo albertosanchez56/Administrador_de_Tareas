@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -18,13 +19,14 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "board_members")
+@IdClass(BoardMemberId.class)
 public class BoardMembers {
 
     public enum Role {
         MEMBER,
         OWNER
     }
-    
+
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)

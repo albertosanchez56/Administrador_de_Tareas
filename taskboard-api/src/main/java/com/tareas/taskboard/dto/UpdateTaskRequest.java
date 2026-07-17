@@ -7,7 +7,8 @@ import com.tareas.taskboard.entity.Task;
 public record UpdateTaskRequest(
     Task.TaskStatus status,
     Long assignedToUserId,
-    Instant dueAt
+    Instant dueAt,
+    Integer position 
 ) {
     
 }

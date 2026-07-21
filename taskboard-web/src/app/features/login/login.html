@@ -72,7 +72,7 @@
           </p>
         </header>
 
-        <form class="login__form" novalidate>
+        <form class="login__form" (ngSubmit)="onSubmit()" novalidate>
           <!-- Conecta (submit) en el .ts -->
           <div class="login__field">
             <label class="login__label" for="username">Usuario</label>
@@ -81,6 +81,7 @@
               id="username"
               name="username"
               type="text"
+              [(ngModel)]="username"
               autocomplete="username"
               placeholder="tu usuario"
               required
@@ -94,6 +95,7 @@
               id="password"
               name="password"
               type="password"
+              [(ngModel)]="password"
               autocomplete="current-password"
               placeholder="••••••••"
               required
@@ -101,11 +103,13 @@
           </div>
 
           <!-- Muestra este bloque cuando falle el login: *ngIf / @if (error) -->
-          <p class="login__error" hidden role="alert">
-            No hemos podido entrar. Revisa usuario y contraseña.
-          </p>
+          @if (error) {
+            <p class="login__error" role="alert">
+              No hemos podido entrar. Revisa usuario y contraseña.
+            </p>
+          }
 
-          <button class="login__submit" type="submit">
+          <button class="login__submit" type="submit" [disabled]="loading">
             Entrar al tablero
           </button>
         </form>

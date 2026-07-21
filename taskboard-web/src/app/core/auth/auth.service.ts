@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 export interface LoginResponse {
     accessToken: string;
     userId: number;
-    usename: string;
+    username: string;
     role: string;
 }
 

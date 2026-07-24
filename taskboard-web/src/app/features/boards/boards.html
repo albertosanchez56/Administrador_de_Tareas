@@ -1,1 +1,139 @@
-<p>Boards (placeholder)</p>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<section class="boards">
+  <div class="boards__atmosphere" aria-hidden="true">
+    <div class="boards__dots"></div>
+  </div>
+
+  <div class="boards__frame">
+    <div class="boards__canvas">
+      <div class="boards__shell">
+        <header class="boards__top">
+          <div class="boards__brand">
+            <p class="boards__mark">Taskboard</p>
+            <p class="boards__greeting">Hola, <span class="boards__user">testuser</span></p>
+          </div>
+          <button class="boards__logout" type="button">Cerrar sesión</button>
+        </header>
+
+        <div class="boards__intro">
+          <div class="boards__intro-row">
+            <h1 class="boards__headline">Tus tableros</h1>
+            <p class="boards__count"><span class="boards__count-num">3</span> tableros</p>
+          </div>
+          <p class="boards__lede">
+            Elige uno para seguir, o crea un espacio nuevo y empieza a mover el trabajo.
+          </p>
+        </div>
+
+        <form class="boards__create" novalidate>
+          <div class="boards__create-fields">
+            <div class="boards__field">
+              <label class="boards__label" for="board-title">Nuevo tablero</label>
+              <input
+                class="boards__input"
+                id="board-title"
+                name="title"
+                type="text"
+                placeholder="Nombre del tablero"
+                required
+              />
+            </div>
+            <div class="boards__field boards__field--grow">
+              <label class="boards__label" for="board-description">Descripción</label>
+              <input
+                class="boards__input"
+                id="board-description"
+                name="description"
+                type="text"
+                placeholder="Opcional"
+              />
+            </div>
+            <button class="boards__submit" type="submit">Crear</button>
+          </div>
+        </form>
+
+        <!-- Sustituye por @for cuando conectes el API. Placeholders visuales por ahora. -->
+        <div class="boards__grid" role="list">
+          <button class="boards__tile" type="button" role="listitem">
+            <span class="boards__tile-accent boards__tile-accent--teal"></span>
+            <span class="boards__tile-body">
+              <span class="boards__tile-head">
+                <span class="boards__tile-title">Proyecto demo</span>
+                <span class="boards__chip boards__chip--owner">Owner</span>
+              </span>
+              <span class="boards__tile-desc">
+                Tablero de ejemplo para probar el flujo de tareas y columnas.
+              </span>
+              <span class="boards__tile-foot">
+                <span class="boards__tile-meta">Creado hace 2 días</span>
+                <span class="boards__tile-action">Abrir →</span>
+              </span>
+            </span>
+          </button>
+
+          <button class="boards__tile" type="button" role="listitem">
+            <span class="boards__tile-accent boards__tile-accent--coral"></span>
+            <span class="boards__tile-body">
+              <span class="boards__tile-head">
+                <span class="boards__tile-title">Sprint actual</span>
+                <span class="boards__chip boards__chip--member">Miembro</span>
+              </span>
+              <span class="boards__tile-desc">
+                Trabajo en curso del sprint: bugs, mejoras y entregables.
+              </span>
+              <span class="boards__tile-foot">
+                <span class="boards__tile-meta">Actualizado ayer</span>
+                <span class="boards__tile-action">Abrir →</span>
+              </span>
+            </span>
+          </button>
+
+          <button class="boards__tile" type="button" role="listitem">
+            <span class="boards__tile-accent boards__tile-accent--ink"></span>
+            <span class="boards__tile-body">
+              <span class="boards__tile-head">
+                <span class="boards__tile-title">Ideas del equipo</span>
+                <span class="boards__chip boards__chip--owner">Owner</span>
+              </span>
+              <span class="boards__tile-desc">
+                Captura rápida de ideas antes de priorizarlas en el backlog.
+              </span>
+              <span class="boards__tile-foot">
+                <span class="boards__tile-meta">Creado hace 1 semana</span>
+                <span class="boards__tile-action">Abrir →</span>
+              </span>
+            </span>
+          </button>
+
+          <button class="boards__tile boards__tile--new" type="button" role="listitem">
+            <span class="boards__tile-new-mark" aria-hidden="true">+</span>
+            <span class="boards__tile-body">
+              <span class="boards__tile-title">Nuevo tablero</span>
+              <span class="boards__tile-desc">Crea un espacio vacío y empieza desde cero.</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Vacío: quita [hidden] o usa @if (boards.length === 0) cuando conectes datos -->
+        <div class="boards__empty" hidden>
+          <div class="boards__empty-visual" aria-hidden="true">
+            <span class="boards__empty-bar boards__empty-bar--a"></span>
+            <span class="boards__empty-bar boards__empty-bar--b"></span>
+            <span class="boards__empty-bar boards__empty-bar--c"></span>
+          </div>
+          <p class="boards__empty-title">Aún no tienes tableros</p>
+          <p class="boards__empty-text">
+            Crea el primero con el formulario de arriba o con la tarjeta “Nuevo tablero”.
+          </p>
+          <button class="boards__empty-cta" type="button">Crear el primero</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -2,8 +2,11 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
+  CdkDrag,
   CdkDragDrop,
-  DragDropModule,
+  CdkDragPreview,
+  CdkDropList,
+  CdkDropListGroup,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
@@ -12,7 +15,15 @@ import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
 
 @Component({
   selector: 'app-board-detail',
-  imports: [PageHeader, RouterLink, FormsModule, DragDropModule],
+  imports: [
+    PageHeader,
+    RouterLink,
+    FormsModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragPreview,
+    CdkDropListGroup,
+  ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
 })

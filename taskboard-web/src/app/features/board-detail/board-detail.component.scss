@@ -280,6 +280,12 @@
   border-radius: 0.65rem;
 }
 
+/* Durante el drag: no mostrar “Suelta aquí” encima del hueco */
+.board__cards.cdk-drop-list-dragging .board__empty-col,
+.board__cards.cdk-drop-list-receiving .board__empty-col {
+  display: none;
+}
+
 .board__error {
   margin: 0;
   padding: 0.7rem 0.85rem;
@@ -308,14 +314,18 @@
   cursor: grabbing;
 }
 
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 0.75rem;
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 16%, transparent);
+/* Hueco en la columna: solo un marco, no la tarjeta “fantasma” con texto */
+.board__card.cdk-drag-placeholder {
+  min-height: 4.75rem;
+  border: 2px dashed color-mix(in srgb, var(--teal) 45%, transparent);
+  background: color-mix(in srgb, var(--teal) 6%, white);
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
 }
 
-.cdk-drag-placeholder {
-  opacity: 0.35;
+.board__card.cdk-drag-placeholder * {
+  opacity: 0;
 }
 
 .cdk-drag-animating {

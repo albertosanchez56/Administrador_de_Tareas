@@ -1,21 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { Board, BoardService } from '../../core/boards/board.service';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/auth/auth.service';
+import { PageHeader } from '../../shared/page-header/page-header';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-boards',
-  imports: [FormsModule],
+  imports: [FormsModule, PageHeader],
   templateUrl: './boards.html',
   styleUrl: './boards.scss',
 })
 export class Boards {
 
   private readonly boardService = inject(BoardService);
-  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-
+  
   boards: Board[] = [];
   loading = false;
   error = false;
@@ -25,6 +24,7 @@ export class Boards {
   constructor() {
     this.loadBoards();
   }
+
   loadBoards() {
     this.boardService.getMyBoards().subscribe({
       next: (boards) => {
@@ -46,7 +46,7 @@ export class Boards {
         next: () => {
           this.title = '';
           this.description = '';
-          this.loadBoards(); // recarga la lista
+          this.loadBoards();
         },
         error: () => {
           this.error = true;
@@ -54,8 +54,7 @@ export class Boards {
       });
   }
 
-  onLogout() {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+  openBoard(boardId: number) {
+    this.router.navigate(['/boards', boardId]);
   }
 }

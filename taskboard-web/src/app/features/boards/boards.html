@@ -12,15 +12,7 @@
   <div class="boards__frame">
     <div class="boards__canvas">
       <div class="boards__shell">
-        <header class="boards__top">
-          <div class="boards__brand">
-            <p class="boards__mark">Taskboard</p>
-            <p class="boards__greeting">Hola, <span class="boards__user">testuser</span></p>
-          </div>
-          <button class="boards__logout" type="button" (click)="onLogout()">
-            Cerrar sesión
-          </button>
-        </header>
+        <app-page-header tagline="Tus espacios de trabajo" />
 
         <div class="boards__intro">
           <div class="boards__intro-row">
@@ -64,7 +56,7 @@
         <!-- Sustituye por @for cuando conectes el API. Placeholders visuales por ahora. -->
         <div class="boards__grid" role="list">
           @for (board of boards; track board.id) {
-          <button class="boards__tile" type="button" role="listitem">
+          <button class="boards__tile" type="button" role="listitem" (click)="openBoard(board.id)">
             <span class="boards__tile-accent boards__tile-accent--teal"></span>
             <span class="boards__tile-body">
               <span class="boards__tile-head">

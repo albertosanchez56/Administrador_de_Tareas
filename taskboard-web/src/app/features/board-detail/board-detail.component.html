@@ -1,0 +1,158 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<section class="board">
+  <div class="board__atmosphere" aria-hidden="true">
+    <div class="board__dots"></div>
+  </div>
+
+  <div class="board__inner">
+    <app-page-header [tagline]="boardTitle" />
+
+    <div class="board__toolbar">
+      <a class="board__back" routerLink="/boards">← Volver a tableros</a>
+      <div class="board__heading">
+        <h1 class="board__title">{{ boardTitle }}</h1>
+        <p class="board__meta">ID {{ boardId }} · Arrastra las tareas entre columnas</p>
+      </div>
+    </div>
+
+    <form class="board__create" (ngSubmit)="onCreate()" novalidate>
+      <div class="board__create-fields">
+        <div class="board__field board__field--grow">
+          <label class="board__label" for="task-title">Nueva tarea</label>
+          <input
+            class="board__input"
+            id="task-title"
+            name="title"
+            type="text"
+            placeholder="¿Qué hay que hacer?"
+            required
+            [(ngModel)]="newTitle"
+          />
+        </div>
+        <div class="board__field">
+          <label class="board__label" for="task-description">Notas</label>
+          <input
+            class="board__input"
+            id="task-description"
+            name="description"
+            type="text"
+            placeholder="Opcional"
+            [(ngModel)]="newDescription"
+          />
+        </div>
+        <button class="board__submit" type="submit">Añadir</button>
+      </div>
+    </form>
+
+    @if (error) {
+      <p class="board__error" role="alert">No se ha podido actualizar el tablero. Revisa la sesión o inténtalo de nuevo.</p>
+    }
+
+    <div class="board__columns" role="list">
+      <section class="board__column board__column--todo" role="listitem">
+        <header class="board__column-head">
+          <h2 class="board__column-title">Por hacer</h2>
+          <span class="board__column-count">{{ todo.length }}</span>
+        </header>
+        <div
+          class="board__cards"
+          cdkDropList
+          #todoList="cdkDropList"
+          [cdkDropListData]="todo"
+          [cdkDropListConnectedTo]="[doingList, doneList]"
+          (cdkDropListDropped)="drop($event, 'TODO')"
+        >
+          @for (task of todo; track task.id) {
+            <article class="board__card" cdkDrag>
+              <span class="board__card-bar board__card-bar--teal"></span>
+              <h3 class="board__card-title">{{ task.title }}</h3>
+              <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
+              <div class="board__card-foot">
+                @if (task.assignedTo) {
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
+                } @else {
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
+                }
+              </div>
+            </article>
+          }
+          @if (todo.length === 0) {
+            <p class="board__empty-col">Suelta tareas aquí</p>
+          }
+        </div>
+      </section>
+
+      <section class="board__column board__column--doing" role="listitem">
+        <header class="board__column-head">
+          <h2 class="board__column-title">En curso</h2>
+          <span class="board__column-count">{{ doing.length }}</span>
+        </header>
+        <div
+          class="board__cards"
+          cdkDropList
+          #doingList="cdkDropList"
+          [cdkDropListData]="doing"
+          [cdkDropListConnectedTo]="[todoList, doneList]"
+          (cdkDropListDropped)="drop($event, 'DOING')"
+        >
+          @for (task of doing; track task.id) {
+            <article class="board__card" cdkDrag>
+              <span class="board__card-bar board__card-bar--coral"></span>
+              <h3 class="board__card-title">{{ task.title }}</h3>
+              <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
+              <div class="board__card-foot">
+                @if (task.assignedTo) {
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
+                } @else {
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
+                }
+              </div>
+            </article>
+          }
+          @if (doing.length === 0) {
+            <p class="board__empty-col">Suelta tareas aquí</p>
+          }
+        </div>
+      </section>
+
+      <section class="board__column board__column--done" role="listitem">
+        <header class="board__column-head">
+          <h2 class="board__column-title">Hecho</h2>
+          <span class="board__column-count">{{ done.length }}</span>
+        </header>
+        <div
+          class="board__cards"
+          cdkDropList
+          #doneList="cdkDropList"
+          [cdkDropListData]="done"
+          [cdkDropListConnectedTo]="[todoList, doingList]"
+          (cdkDropListDropped)="drop($event, 'DONE')"
+        >
+          @for (task of done; track task.id) {
+            <article class="board__card board__card--done" cdkDrag>
+              <span class="board__card-bar board__card-bar--teal"></span>
+              <h3 class="board__card-title">{{ task.title }}</h3>
+              <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
+              <div class="board__card-foot">
+                @if (task.assignedTo) {
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
+                } @else {
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
+                }
+              </div>
+            </article>
+          }
+          @if (done.length === 0) {
+            <p class="board__empty-col">Suelta tareas aquí</p>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</section>

@@ -45,6 +45,12 @@ export class BoardDetailComponent {
   loading = false;
   error = false;
 
+  editingTask: Task | null = null;
+  editTitle = '';
+  editDescription = '';
+  savingEdit = false;
+  private dragging = false;
+
   constructor() {
     this.loadBoard();
     this.loadTasks();
@@ -133,5 +139,53 @@ export class BoardDetailComponent {
       });
   }
 
+  onDragStarted() {
+    this.dragging = true;
+  }
 
+  onDragEnded() {
+    // El click del ratón llega después de soltar; ignoramos ese click.
+    setTimeout(() => {
+      this.dragging = false;
+    }, 0);
+  }
+
+  openEdit(task: Task) {
+    if (this.dragging) {
+      return;
+    }
+    this.editingTask = task;
+    this.editTitle = task.title;
+    this.editDescription = task.description ?? '';
+  }
+
+  cancelEdit() {
+    this.editingTask = null;
+    this.editTitle = '';
+    this.editDescription = '';
+    this.savingEdit = false;
+  }
+
+  saveEdit() {
+    if (!this.editingTask || !this.editTitle.trim() || this.savingEdit) {
+      return;
+    }
+
+    this.savingEdit = true;
+    this.tasksApi
+      .updateTask(this.boardId, this.editingTask.id, {
+        title: this.editTitle.trim(),
+        description: this.editDescription.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadTasks();
+        },
+        error: () => {
+          this.error = true;
+          this.savingEdit = false;
+        },
+      });
+  }
 }

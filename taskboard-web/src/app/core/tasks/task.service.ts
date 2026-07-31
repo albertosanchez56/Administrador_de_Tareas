@@ -32,7 +32,14 @@ export class TaskService {
   updateTask(
     boardId: number | string,
     taskId: number,
-    body: { status?: TaskStatus; position?: number; assignedToUserId?: number; dueAt?: string },
+    body: {
+      title?: string;
+      description?: string | null;
+      status?: TaskStatus;
+      position?: number;
+      assignedToUserId?: number;
+      dueAt?: string;
+    },
   ) {
     return this.http.patch<Task>(`/api/boards/${boardId}/tasks/${taskId}`, body);
   }

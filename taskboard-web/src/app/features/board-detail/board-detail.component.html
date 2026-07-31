@@ -17,7 +17,7 @@
       <a class="board__back" routerLink="/boards">← Volver a tableros</a>
       <div class="board__heading">
         <h1 class="board__title">{{ boardTitle }}</h1>
-        <p class="board__meta">ID {{ boardId }} · Arrastra las tareas entre columnas</p>
+        <p class="board__meta">ID {{ boardId }} · Clic para editar · Arrastra entre columnas</p>
       </div>
     </div>
 
@@ -67,7 +67,13 @@
           (cdkDropListDropped)="drop($event, 'TODO')"
         >
           @for (task of todo; track task.id) {
-            <article class="board__card" cdkDrag>
+            <article
+              class="board__card"
+              cdkDrag
+              (cdkDragStarted)="onDragStarted()"
+              (cdkDragEnded)="onDragEnded()"
+              (click)="openEdit(task)"
+            >
               <span class="board__card-bar board__card-bar--teal"></span>
               <h3 class="board__card-title">{{ task.title }}</h3>
               <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
@@ -113,7 +119,13 @@
           (cdkDropListDropped)="drop($event, 'DOING')"
         >
           @for (task of doing; track task.id) {
-            <article class="board__card" cdkDrag>
+            <article
+              class="board__card"
+              cdkDrag
+              (cdkDragStarted)="onDragStarted()"
+              (cdkDragEnded)="onDragEnded()"
+              (click)="openEdit(task)"
+            >
               <span class="board__card-bar board__card-bar--coral"></span>
               <h3 class="board__card-title">{{ task.title }}</h3>
               <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
@@ -159,7 +171,13 @@
           (cdkDropListDropped)="drop($event, 'DONE')"
         >
           @for (task of done; track task.id) {
-            <article class="board__card board__card--done" cdkDrag>
+            <article
+              class="board__card board__card--done"
+              cdkDrag
+              (cdkDragStarted)="onDragStarted()"
+              (cdkDragEnded)="onDragEnded()"
+              (click)="openEdit(task)"
+            >
               <span class="board__card-bar board__card-bar--teal"></span>
               <h3 class="board__card-title">{{ task.title }}</h3>
               <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
@@ -194,4 +212,53 @@
       </section>
     </div>
   </div>
+
+  @if (editingTask) {
+    <div class="board__modal" role="dialog" aria-modal="true" aria-labelledby="edit-dialog-title">
+      <button
+        class="board__modal-backdrop"
+        type="button"
+        (click)="cancelEdit()"
+        aria-label="Cerrar diálogo"
+      ></button>
+      <form class="board__edit" (ngSubmit)="saveEdit()" novalidate>
+        <div class="board__edit-head">
+          <h2 class="board__edit-title" id="edit-dialog-title">Editar tarea</h2>
+          <button class="board__edit-close" type="button" (click)="cancelEdit()" aria-label="Cerrar">
+            ×
+          </button>
+        </div>
+        <div class="board__edit-fields">
+          <div class="board__field board__field--grow">
+            <label class="board__label" for="edit-title">Título</label>
+            <input
+              class="board__input"
+              id="edit-title"
+              name="editTitle"
+              type="text"
+              required
+              [(ngModel)]="editTitle"
+            />
+          </div>
+          <div class="board__field">
+            <label class="board__label" for="edit-description">Descripción</label>
+            <textarea
+              class="board__input board__textarea"
+              id="edit-description"
+              name="editDescription"
+              rows="3"
+              placeholder="Opcional"
+              [(ngModel)]="editDescription"
+            ></textarea>
+          </div>
+        </div>
+        <div class="board__edit-actions">
+          <button class="board__edit-cancel" type="button" (click)="cancelEdit()">Cancelar</button>
+          <button class="board__submit" type="submit" [disabled]="savingEdit || !editTitle.trim()">
+            {{ savingEdit ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 </section>

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +53,12 @@ public class TaskController {
     private Long getAuthenticatedUserId() {
         return Long.valueOf(
                 SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long boardId, @PathVariable Long taskId) {
+        taskService.deleteTask(boardId, taskId, getAuthenticatedUserId());
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{taskId}")

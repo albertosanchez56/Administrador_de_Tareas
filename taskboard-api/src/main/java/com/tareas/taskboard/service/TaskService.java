@@ -139,6 +139,14 @@ public class TaskService {
         return TaskResponse.fromTask(saved);
     }
 
+    @Transactional
+    public void deleteTask(Long boardId, Long taskId, Long userId) {
+        Board board = getBoardIfMember(boardId, userId);
+        Task task = taskRepository.findByIdAndBoard(taskId, board)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+        taskRepository.delete(task);
+    }
+
     // Método privado para no repetir la misma lógica en create y list.
     // Devuelve el board solo si existe y el userId es el owner.
     private Board getBoardIfMember(Long boardId, Long userId) {

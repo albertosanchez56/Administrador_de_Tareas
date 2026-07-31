@@ -202,8 +202,34 @@
 .board__edit-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.65rem;
+}
+
+.board__edit-actions-end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-left: auto;
+}
+
+.board__edit-delete {
+  padding: 0.85rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--coral) 40%, transparent);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--coral) 10%, white);
+  color: #8a3d28;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.board__edit-delete:hover {
+  border-color: color-mix(in srgb, var(--coral) 70%, transparent);
+  background: color-mix(in srgb, var(--coral) 18%, white);
+  color: #6e2f1e;
 }
 
 .board__edit-cancel {

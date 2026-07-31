@@ -253,10 +253,19 @@
           </div>
         </div>
         <div class="board__edit-actions">
-          <button class="board__edit-cancel" type="button" (click)="cancelEdit()">Cancelar</button>
-          <button class="board__submit" type="submit" [disabled]="savingEdit || !editTitle.trim()">
-            {{ savingEdit ? 'Guardando…' : 'Guardar' }}
+          <button
+            class="board__edit-delete"
+            type="button"
+            (click)="deleteTask(editingTask.id)"
+          >
+            Eliminar
           </button>
+          <div class="board__edit-actions-end">
+            <button class="board__edit-cancel" type="button" (click)="cancelEdit()">Cancelar</button>
+            <button class="board__submit" type="submit" [disabled]="savingEdit || !editTitle.trim()">
+              {{ savingEdit ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>

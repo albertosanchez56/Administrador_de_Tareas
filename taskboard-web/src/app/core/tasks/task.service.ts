@@ -43,4 +43,8 @@ export class TaskService {
   ) {
     return this.http.patch<Task>(`/api/boards/${boardId}/tasks/${taskId}`, body);
   }
+
+  deleteTask(boardId: number | string, taskId: number) {
+    return this.http.delete<void>(`/api/boards/${boardId}/tasks/${taskId}`);
+  }
 }

@@ -110,6 +110,19 @@ export class BoardDetailComponent {
       });
   }
 
+
+  deleteTask(taskId: number) {
+    this.tasksApi.deleteTask(this.boardId, taskId).subscribe({
+      next: () => {
+        this.cancelEdit();
+        this.loadTasks();
+      },
+      error: () => {
+        this.error = true;
+      },
+    });
+  }
+
   drop(event: CdkDragDrop<Task[]>, targetStatus: TaskStatus) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -138,6 +151,8 @@ export class BoardDetailComponent {
         },
       });
   }
+
+  
 
   onDragStarted() {
     this.dragging = true;

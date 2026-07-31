@@ -12,6 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { PageHeader } from '../../shared/page-header/page-header';
 import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
+import { BoardService } from '../../core/boards/board.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -30,6 +31,7 @@ import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
 export class BoardDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly tasksApi = inject(TaskService);
+  private readonly boardApi = inject(BoardService);
 
   boardId = this.route.snapshot.paramMap.get('boardId') ?? '';
   boardTitle = 'Tablero';
@@ -44,6 +46,7 @@ export class BoardDetailComponent {
   error = false;
 
   constructor() {
+    this.loadBoard();
     this.loadTasks();
   }
 
@@ -66,6 +69,18 @@ export class BoardDetailComponent {
       error: () => {
         this.error = true;
         this.loading = false;
+      },
+    });
+  }
+
+  loadBoard() {
+    const id = Number(this.boardId);
+    this.boardApi.getMyBoards().subscribe({
+      next: (boards) => {
+        const board = boards.find((b) => b.id === id);
+        if (board) {
+          this.boardTitle = board.title;
+        }
       },
     });
   }
@@ -117,4 +132,6 @@ export class BoardDetailComponent {
         },
       });
   }
+
+
 }

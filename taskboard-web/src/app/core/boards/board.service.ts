@@ -25,4 +25,8 @@ export class BoardService {
     return this.http.post<Board>('/api/boards', { title, description });
   }
 
+  getBoard(boardId: string) {
+    return this.http.get<Board>(`/api/boards/${boardId}`);
+  }
+
 }

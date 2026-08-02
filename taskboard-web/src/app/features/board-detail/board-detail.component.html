@@ -44,14 +44,85 @@
             <h2 class="board__members-title">Equipo</h2>
             <p class="board__members-meta">{{ members.length }} en este tablero</p>
           </header>
+
+          <form class="board__invite" (ngSubmit)="onInvite()" novalidate>
+            <label class="board__label" for="invite-email">Invitar por email</label>
+            <div class="board__invite-row">
+              <input
+                class="board__input"
+                id="invite-email"
+                name="inviteEmail"
+                type="email"
+                placeholder="usuario@email.com"
+                autocomplete="email"
+                [(ngModel)]="inviteEmail"
+              />
+              <button
+                class="board__invite-submit"
+                type="submit"
+                [disabled]="inviting || !inviteEmail.trim()"
+              >
+                {{ inviting ? '…' : 'Invitar' }}
+              </button>
+            </div>
+            @if (inviteError) {
+              <p class="board__invite-error" role="alert">
+                No se pudo invitar. Revisa el email o si ya es miembro.
+              </p>
+            }
+          </form>
+
           <ul class="board__members-list">
             @for (m of members; track m.userId) {
-              <li class="board__members-item">
-                <span class="board__members-avatar" aria-hidden="true">{{ memberInitial(m.username) }}</span>
-                <div class="board__members-info">
-                  <span class="board__members-name">{{ m.username }}</span>
-                  <span class="board__members-role">{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</span>
-                </div>
+              <li
+                class="board__members-item"
+                [class.board__members-item--open]="selectedMemberId === m.userId"
+              >
+                <button
+                  class="board__members-row"
+                  type="button"
+                  (click)="toggleMemberDetail(m)"
+                  [attr.aria-expanded]="selectedMemberId === m.userId"
+                >
+                  <span class="board__members-avatar" aria-hidden="true">{{ memberInitial(m.username) }}</span>
+                  <div class="board__members-info">
+                    <span class="board__members-name">{{ m.username }}</span>
+                    <span class="board__members-role">{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</span>
+                  </div>
+                  <span
+                    class="board__members-chevron"
+                    [class.board__members-chevron--open]="selectedMemberId === m.userId"
+                    aria-hidden="true"
+                  >▾</span>
+                </button>
+
+                @if (selectedMemberId === m.userId) {
+                  <div class="board__members-detail">
+                    <dl class="board__members-meta-list">
+                      <div class="board__members-meta-row">
+                        <dt>Rol</dt>
+                        <dd>{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</dd>
+                      </div>
+                      <div class="board__members-meta-row">
+                        <dt>Desde</dt>
+                        <dd>{{ m.createdAt | date: 'dd/MM/yyyy' }}</dd>
+                      </div>
+                    </dl>
+
+                    @if (canRemoveMember(m)) {
+                      <button
+                        class="board__members-remove"
+                        type="button"
+                        [disabled]="removingMember"
+                        (click)="onRemoveMember(m, $event)"
+                      >
+                        {{ removingMember ? 'Quitando…' : 'Quitar del tablero' }}
+                      </button>
+                    } @else {
+                      <p class="board__members-owner-note">El propietario no se puede quitar.</p>
+                    }
+                  </div>
+                }
               </li>
             } @empty {
               <li class="board__members-empty">Aún no hay miembros</li>

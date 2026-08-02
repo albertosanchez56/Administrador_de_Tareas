@@ -38,6 +38,13 @@ export class BoardService {
 
   getMembers(boardId: number | string) {
     return this.http.get<BoardMember[]>(`/api/boards/${boardId}/members`);
+  } 
+
+  inviteMember(boardId: number | string, email: string) {
+    return this.http.post<BoardMember>(`/api/boards/${boardId}/members`, { email });
   }
 
+  removeMember(boardId: number | string, userId: number) {
+    return this.http.delete<void>(`/api/boards/${boardId}/members/${userId}`);
+  }
 }

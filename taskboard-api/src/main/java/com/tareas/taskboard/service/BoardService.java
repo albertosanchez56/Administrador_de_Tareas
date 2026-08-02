@@ -8,12 +8,14 @@ import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
 import com.tareas.taskboard.dto.InviteMemberRequest;
 import com.tareas.taskboard.entity.Board;
+import com.tareas.taskboard.entity.BoardMemberId;
 import com.tareas.taskboard.entity.BoardMembers;
 import com.tareas.taskboard.entity.BoardMembers.Role;
 import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.exception.AccessDeniedException;
 import com.tareas.taskboard.exception.BoardNotFoundException;
 import com.tareas.taskboard.exception.MemberAlreadyExistsException;
+import com.tareas.taskboard.exception.MemberNotFoundException;
 import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
@@ -55,7 +57,8 @@ public class BoardService {
         return BoardResponse.from(saved);
     }
 
-    // Devuelve los boards donde el usuario participa (OWNER o MEMBER) según board_members.
+    // Devuelve los boards donde el usuario participa (OWNER o MEMBER) según
+    // board_members.
     // userId viene del JWT en el controller.
     @Transactional
     public List<BoardResponse> getMyBoards(Long userId) {
@@ -70,7 +73,8 @@ public class BoardService {
                 .toList();
     }
 
-    // Añade un miembro al board. Solo el owner puede invitar; requesterUserId viene del JWT.
+    // Añade un miembro al board. Solo el owner puede invitar; requesterUserId viene
+    // del JWT.
     @Transactional // necesario por relaciones LAZY al mapear BoardMemberResponse
     public BoardMemberResponse addMember(Long boardId, InviteMemberRequest request, Long requesterUserId) {
         // Compruebo que el board existe.
@@ -86,7 +90,8 @@ public class BoardService {
         User invitedUser = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Evito duplicados: el owner ya está en board_members y un member no se invita dos veces.
+        // Evito duplicados: el owner ya está en board_members y un member no se invita
+        // dos veces.
         if (boardMemberRepository.existsByBoardAndUser(board, invitedUser)) {
             throw new MemberAlreadyExistsException("User already a member of this board");
         }
@@ -99,9 +104,11 @@ public class BoardService {
 
     @Transactional
     public List<BoardMemberResponse> getBoardMembers(Long boardId, Long userId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new BoardNotFoundException("Board not found"));
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
 
-        if (!board.getOwner().getId().equals(userId)  && !boardMemberRepository.existsByBoardAndUser(board, userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
+        if (!board.getOwner().getId().equals(userId) && !boardMemberRepository.existsByBoardAndUser(board,
+                userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
             throw new AccessDeniedException("You are not allowed to get the members of this board");
         }
 
@@ -110,5 +117,25 @@ public class BoardService {
         return members.stream()
                 .map(BoardMemberResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void removeMember(Long boardId, Long memberId, Long requesterUserId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(requesterUserId)) {
+            throw new AccessDeniedException("You are not allowed to remove members from this board");
+        }
+
+        if (board.getOwner().getId().equals(memberId)) {
+            throw new AccessDeniedException("Cannot remove the board owner");
+        }
+
+        BoardMembers member = boardMemberRepository
+                .findById(new BoardMemberId(boardId, memberId))
+                .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        boardMemberRepository.delete(member);
     }
 }

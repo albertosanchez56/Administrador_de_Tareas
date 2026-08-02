@@ -58,6 +58,12 @@ export class BoardDetailComponent {
   editAssignedToUserId: number | null = null;
   membersOpen = false;
 
+  inviteEmail = ''; 
+  inviting = false;
+  inviteError = false;
+  selectedMemberId: number | null = null;
+  removingMember = false;
+
   constructor() {
     this.loadBoard();
     this.loadTasks();
@@ -112,6 +118,47 @@ export class BoardDetailComponent {
 
   memberInitial(username: string): string {
     return username.trim().charAt(0).toUpperCase() || '?';
+  }
+
+  toggleMemberDetail(member: BoardMember) {
+    this.selectedMemberId =
+      this.selectedMemberId === member.userId ? null : member.userId;
+  }
+
+  canRemoveMember(member: BoardMember): boolean {
+    return member.role !== 'OWNER';
+  }
+
+  onRemoveMember(member: BoardMember, event: Event) {
+    event.stopPropagation();
+    if (!this.canRemoveMember(member) || this.removingMember) {
+      return;
+    }
+
+    const ok = confirm(
+      `¿Quitar a ${member.username} de este tablero?\nPodrá volver a ser invitado más adelante.`,
+    );
+    if (!ok) {
+      return;
+    }
+
+    this.removingMember = true;
+    this.boardApi.removeMember(this.boardId, member.userId).subscribe({
+      next: () => {
+        if (this.selectedMemberId === member.userId) {
+          this.selectedMemberId = null;
+        }
+        if (this.editAssignedToUserId === member.userId) {
+          this.editAssignedToUserId = null;
+        }
+        this.removingMember = false;
+        this.loadMembers();
+      },
+      error: () => {
+        this.removingMember = false;
+        this.error = true;
+      },
+    });
   }
 
   onCreate() {
@@ -242,5 +289,24 @@ export class BoardDetailComponent {
           this.savingEdit = false;
         },
       });
+  }
+
+  onInvite() {
+    if (!this.inviteEmail.trim() || this.inviting) {
+      return;
+    }
+    this.inviting = true;
+    this.inviteError = false;
+    this.boardApi.inviteMember(this.boardId, this.inviteEmail.trim()).subscribe({
+      next: () => {
+        this.inviteEmail = '';
+        this.loadMembers();
+        this.inviting = false;
+      },
+      error: () => {
+        this.inviteError = true;
+        this.inviting = false;
+      },
+    });
   }
 }

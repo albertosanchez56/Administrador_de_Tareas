@@ -78,6 +78,164 @@
   gap: 0.55rem;
 }
 
+.board__toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.board__members-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, white 82%, var(--paper));
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.board__members-toggle:hover {
+  border-color: color-mix(in srgb, var(--teal) 35%, transparent);
+  background: color-mix(in srgb, var(--teal) 8%, white);
+  color: var(--teal-deep);
+}
+
+.board__members-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.board__members-toggle-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding-inline: 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--teal) 14%, white);
+  color: var(--teal-deep);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.board__members-toggle-chevron {
+  display: inline-block;
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.board__members-toggle-chevron--open {
+  transform: rotate(180deg);
+}
+
+.board__layout {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.board__main {
+  display: grid;
+  gap: 1.35rem;
+  min-width: 0;
+}
+
+.board__members {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: color-mix(in srgb, white 88%, var(--paper));
+  backdrop-filter: blur(8px);
+  animation: members-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.board__members-head {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.85rem;
+}
+
+.board__members-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.board__members-meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.board__members-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.board__members-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.35rem;
+  border-radius: 0.65rem;
+}
+
+.board__members-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--teal) 16%, white);
+  color: var(--teal-deep);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.board__members-info {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.board__members-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board__members-role {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.board__members-empty {
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 .board__back {
   width: fit-content;
   font-size: 0.88rem;
@@ -94,6 +252,8 @@
 .board__heading {
   display: grid;
   gap: 0.3rem;
+  flex: 1;
+  min-width: 12rem;
 }
 
 .board__title {
@@ -615,6 +775,17 @@
   }
 }
 
+@keyframes members-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes modal-fade {
   from {
     opacity: 0;
@@ -667,9 +838,50 @@
   }
 }
 
+@media (min-width: 1100px) {
+  .board__inner {
+    width: min(100%, 80rem);
+  }
+
+  .board__layout--with-members {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    align-items: start;
+  }
+
+  .board__layout--with-members .board__members {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 1rem;
+    animation-name: members-side-in;
+  }
+
+  .board__layout--with-members .board__main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+@keyframes members-side-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (max-width: 899px) {
   .board__dots {
     opacity: 0.4;
+  }
+
+  .board__members-toggle {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
   }
 }
 
@@ -677,7 +889,8 @@
   .board__inner,
   .board__column,
   .board__modal-backdrop,
-  .board__edit {
+  .board__edit,
+  .board__members {
     animation: none;
   }
 }

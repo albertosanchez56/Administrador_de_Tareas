@@ -14,34 +14,75 @@
 
     <div class="board__toolbar">
       <a class="board__back" routerLink="/boards">← Volver a tableros</a>
-      <div class="board__heading">
-        <h1 class="board__title">{{ boardTitle }}</h1>
-        <p class="board__meta">ID {{ boardId }} · Clic para editar · Arrastra entre columnas</p>
+      <div class="board__toolbar-row">
+        <div class="board__heading">
+          <h1 class="board__title">{{ boardTitle }}</h1>
+          <p class="board__meta">ID {{ boardId }} · Clic para editar · Arrastra entre columnas</p>
+        </div>
+        <button
+          class="board__members-toggle"
+          type="button"
+          [attr.aria-expanded]="membersOpen"
+          aria-controls="board-members-panel"
+          (click)="toggleMembers()"
+        >
+          <span class="board__members-toggle-label">Miembros</span>
+          <span class="board__members-toggle-count">{{ members.length }}</span>
+          <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen" aria-hidden="true">▾</span>
+        </button>
       </div>
     </div>
 
-    <form class="board__create" (ngSubmit)="onCreate()" novalidate>
-      <div class="board__create-fields">
-        <div class="board__field board__field--grow">
-          <label class="board__label" for="task-title">Nueva tarea</label>
-          <input class="board__input" id="task-title" name="title" type="text" placeholder="¿Qué hay que hacer?"
-            required [(ngModel)]="newTitle" />
-        </div>
-        <div class="board__field">
-          <label class="board__label" for="task-description">Notas</label>
-          <input class="board__input" id="task-description" name="description" type="text" placeholder="Opcional"
-            [(ngModel)]="newDescription" />
-        </div>
-        <button class="board__submit" type="submit">Añadir</button>
-      </div>
-    </form>
+    <div class="board__layout" [class.board__layout--with-members]="membersOpen">
+      @if (membersOpen) {
+        <aside
+          class="board__members"
+          id="board-members-panel"
+          aria-label="Miembros del tablero"
+        >
+          <header class="board__members-head">
+            <h2 class="board__members-title">Equipo</h2>
+            <p class="board__members-meta">{{ members.length }} en este tablero</p>
+          </header>
+          <ul class="board__members-list">
+            @for (m of members; track m.userId) {
+              <li class="board__members-item">
+                <span class="board__members-avatar" aria-hidden="true">{{ memberInitial(m.username) }}</span>
+                <div class="board__members-info">
+                  <span class="board__members-name">{{ m.username }}</span>
+                  <span class="board__members-role">{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</span>
+                </div>
+              </li>
+            } @empty {
+              <li class="board__members-empty">Aún no hay miembros</li>
+            }
+          </ul>
+        </aside>
+      }
 
-    @if (error) {
-    <p class="board__error" role="alert">No se ha podido actualizar el tablero. Revisa la sesión o inténtalo de nuevo.
-    </p>
-    }
+      <div class="board__main">
+        <form class="board__create" (ngSubmit)="onCreate()" novalidate>
+          <div class="board__create-fields">
+            <div class="board__field board__field--grow">
+              <label class="board__label" for="task-title">Nueva tarea</label>
+              <input class="board__input" id="task-title" name="title" type="text" placeholder="¿Qué hay que hacer?"
+                required [(ngModel)]="newTitle" />
+            </div>
+            <div class="board__field">
+              <label class="board__label" for="task-description">Notas</label>
+              <input class="board__input" id="task-description" name="description" type="text" placeholder="Opcional"
+                [(ngModel)]="newDescription" />
+            </div>
+            <button class="board__submit" type="submit">Añadir</button>
+          </div>
+        </form>
 
-    <div class="board__columns" role="list" cdkDropListGroup>
+        @if (error) {
+        <p class="board__error" role="alert">No se ha podido actualizar el tablero. Revisa la sesión o inténtalo de nuevo.
+        </p>
+        }
+
+        <div class="board__columns" role="list" cdkDropListGroup>
       <section class="board__column board__column--todo" role="listitem">
         <header class="board__column-head">
           <h2 class="board__column-title">Por hacer</h2>
@@ -198,6 +239,8 @@
         </div>
       </section>
     </div>
+      </div>
+    </div>
   </div>
 
   @if (editingTask) {
@@ -219,6 +262,20 @@
           <label class="board__label" for="edit-description">Descripción</label>
           <textarea class="board__input board__textarea" id="edit-description" name="editDescription" rows="3"
             placeholder="Opcional" [(ngModel)]="editDescription"></textarea>
+        </div>
+        <div class="board__field">
+          <label class="board__label" for="edit-assignee">Asignado a</label>
+          <select
+            class="board__input"
+            id="edit-assignee"
+            name="editAssignedToUserId"
+            [(ngModel)]="editAssignedToUserId"
+          >
+            <option [ngValue]="null">Sin asignar</option>
+            @for (m of members; track m.userId) {
+              <option [ngValue]="m.userId">{{ m.username }}</option>
+            }
+          </select>
         </div>
         <div class="board__field">
           <label class="board__label" for="edit-dueAt">Fecha de entrega</label>

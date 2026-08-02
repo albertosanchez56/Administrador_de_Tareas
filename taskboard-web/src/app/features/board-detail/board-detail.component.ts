@@ -12,7 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { PageHeader } from '../../shared/page-header/page-header';
 import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
-import { BoardService } from '../../core/boards/board.service';
+import { BoardMember, BoardService } from '../../core/boards/board.service';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -54,9 +54,14 @@ export class BoardDetailComponent {
   savingEdit = false;
   private dragging = false;
 
+  members: BoardMember[] = [];
+  editAssignedToUserId: number | null = null;
+  membersOpen = false;
+
   constructor() {
     this.loadBoard();
     this.loadTasks();
+    this.loadMembers();
   }
 
   loadTasks() {
@@ -92,6 +97,21 @@ export class BoardDetailComponent {
         }
       },
     });
+  }
+
+  loadMembers() {
+    this.boardApi.getMembers(this.boardId).subscribe({
+      next: (members) => (this.members = members),
+      error: () => (this.error = true),
+    });
+  }
+
+  toggleMembers() {
+    this.membersOpen = !this.membersOpen;
+  }
+
+  memberInitial(username: string): string {
+    return username.trim().charAt(0).toUpperCase() || '?';
   }
 
   onCreate() {
@@ -178,6 +198,8 @@ export class BoardDetailComponent {
     this.editDueAt = task.dueAt
       ? new Date(task.dueAt).toISOString().slice(0, 16)
       : '';
+    this.editAssignedToUserId =
+      this.members.find((m) => m.username === task.assignedTo)?.userId ?? null;
   }
 
   cancelEdit() {
@@ -186,6 +208,7 @@ export class BoardDetailComponent {
     this.editDescription = '';
     this.savingEdit = false;
     this.editDueAt = '';
+    this.editAssignedToUserId = null;
   }
 
   clearDueAt() {
@@ -203,8 +226,11 @@ export class BoardDetailComponent {
         title: this.editTitle.trim(),
         description: this.editDescription.trim(),
         ...(this.editDueAt.trim()
-        ? { dueAt: new Date(this.editDueAt).toISOString() }
-        : { clearDueAt: true }),
+          ? { dueAt: new Date(this.editDueAt).toISOString() }
+          : { clearDueAt: true }),
+        ...(this.editAssignedToUserId != null
+          ? { assignedToUserId: this.editAssignedToUserId }
+          : {}),
       })
       .subscribe({
         next: () => {

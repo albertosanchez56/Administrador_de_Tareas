@@ -10,6 +10,13 @@ export interface Board {
   updatedAt: string;
 }
 
+export interface BoardMember {
+  boardId: number;
+  userId: number;
+  username: string;
+  role: string;
+  createdAt: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +34,10 @@ export class BoardService {
 
   getBoard(boardId: string) {
     return this.http.get<Board>(`/api/boards/${boardId}`);
+  }
+
+  getMembers(boardId: number | string) {
+    return this.http.get<BoardMember[]>(`/api/boards/${boardId}/members`);
   }
 
 }

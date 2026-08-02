@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
 import com.tareas.taskboard.service.BoardService;
@@ -43,5 +45,11 @@ public class BoardController {
         return Long.valueOf(
             SecurityContextHolder.getContext().getAuthentication().getName()
         );
+    }
+
+    @GetMapping("/{boardId}/members")
+    public ResponseEntity<List<BoardMemberResponse>> getBoardMembers(@PathVariable Long boardId) {
+        List<BoardMemberResponse> response = boardService.getBoardMembers(boardId, getAuthenticatedUserId());
+        return ResponseEntity.ok(response);
     }
 }

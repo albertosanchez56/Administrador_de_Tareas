@@ -96,4 +96,19 @@ public class BoardService {
 
         return BoardMemberResponse.from(saved);
     }
+
+    @Transactional
+    public List<BoardMemberResponse> getBoardMembers(Long boardId, Long userId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(userId)  && !boardMemberRepository.existsByBoardAndUser(board, userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
+            throw new AccessDeniedException("You are not allowed to get the members of this board");
+        }
+
+        List<BoardMembers> members = boardMemberRepository.findByBoard(board);
+
+        return members.stream()
+                .map(BoardMemberResponse::from)
+                .toList();
+    }
 }

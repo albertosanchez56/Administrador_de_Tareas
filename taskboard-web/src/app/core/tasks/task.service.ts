@@ -39,6 +39,7 @@ export class TaskService {
       position?: number;
       assignedToUserId?: number;
       dueAt?: string;
+      clearDueAt?: boolean;
     },
   ) {
     return this.http.patch<Task>(`/api/boards/${boardId}/tasks/${taskId}`, body);

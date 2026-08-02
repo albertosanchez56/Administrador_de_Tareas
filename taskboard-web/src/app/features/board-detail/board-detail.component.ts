@@ -13,6 +13,7 @@ import {
 import { PageHeader } from '../../shared/page-header/page-header';
 import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
 import { BoardService } from '../../core/boards/board.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-board-detail',
@@ -20,6 +21,7 @@ import { BoardService } from '../../core/boards/board.service';
     PageHeader,
     RouterLink,
     FormsModule,
+    DatePipe,
     CdkDropList,
     CdkDrag,
     CdkDragPreview,
@@ -48,6 +50,7 @@ export class BoardDetailComponent {
   editingTask: Task | null = null;
   editTitle = '';
   editDescription = '';
+  editDueAt = '';
   savingEdit = false;
   private dragging = false;
 
@@ -152,7 +155,7 @@ export class BoardDetailComponent {
       });
   }
 
-  
+
 
   onDragStarted() {
     this.dragging = true;
@@ -172,6 +175,9 @@ export class BoardDetailComponent {
     this.editingTask = task;
     this.editTitle = task.title;
     this.editDescription = task.description ?? '';
+    this.editDueAt = task.dueAt
+      ? new Date(task.dueAt).toISOString().slice(0, 16)
+      : '';
   }
 
   cancelEdit() {
@@ -179,6 +185,11 @@ export class BoardDetailComponent {
     this.editTitle = '';
     this.editDescription = '';
     this.savingEdit = false;
+    this.editDueAt = '';
+  }
+
+  clearDueAt() {
+    this.editDueAt = '';
   }
 
   saveEdit() {
@@ -191,6 +202,9 @@ export class BoardDetailComponent {
       .updateTask(this.boardId, this.editingTask.id, {
         title: this.editTitle.trim(),
         description: this.editDescription.trim(),
+        ...(this.editDueAt.trim()
+        ? { dueAt: new Date(this.editDueAt).toISOString() }
+        : { clearDueAt: true }),
       })
       .subscribe({
         next: () => {

@@ -99,6 +99,12 @@ public class TaskService {
         Task task = taskRepository.findByIdAndBoard(taskId, board)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
+        if (Boolean.TRUE.equals(request.clearDueAt())) {
+            task.setDueAt(null);
+        } else if (request.dueAt() != null) {
+            task.setDueAt(request.dueAt());
+        }
+
         if (request.title() != null && !request.title().isBlank()) {
             task.setTitle(request.title());
         }

@@ -10,7 +10,8 @@ public record UpdateTaskRequest(
     Task.TaskStatus status,
     Long assignedToUserId,
     Instant dueAt,
-    Integer position
+    Integer position,
+    Boolean clearDueAt
 ) {
     
 }

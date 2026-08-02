@@ -166,7 +166,3 @@ npm test           # tests unitarios
 - El esquema de base de datos lo aplica **Flyway** al arrancar (`spring.jpa.hibernate.ddl-auto=none`).
 - El frontend no llama al API en otro origen en desarrollo: usa el proxy de Angular.
 - Solo el **propietario** del tablero puede invitar o expulsar miembros; el propietario no puede eliminarse a sí mismo del board.
-
-## Licencia
-
-Uso privado / según lo que indiques en el repositorio.

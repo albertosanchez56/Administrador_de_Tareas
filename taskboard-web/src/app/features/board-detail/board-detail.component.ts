@@ -94,13 +94,12 @@ export class BoardDetailComponent {
   }
 
   loadBoard() {
-    const id = Number(this.boardId);
-    this.boardApi.getMyBoards().subscribe({
-      next: (boards) => {
-        const board = boards.find((b) => b.id === id);
-        if (board) {
-          this.boardTitle = board.title;
-        }
+    this.boardApi.getBoard(this.boardId).subscribe({
+      next: (board) => {
+        this.boardTitle = board.title;
+      },
+      error: () => {
+        this.error = true;
       },
     });
   }

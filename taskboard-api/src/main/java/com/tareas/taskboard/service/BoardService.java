@@ -138,4 +138,17 @@ public class BoardService {
 
         boardMemberRepository.delete(member);
     }
+
+    @Transactional
+    public BoardResponse getBoard(Long boardId, Long userId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(userId) && !boardMemberRepository.existsByBoardAndUser(board,
+                userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
+            throw new AccessDeniedException("ou are not allowed to access this board");
+        }
+
+        return BoardResponse.from(board);
+    }
 }

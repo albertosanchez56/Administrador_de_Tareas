@@ -68,4 +68,10 @@ public class BoardController {
         boardService.removeMember(boardId, memberId, getAuthenticatedUserId());
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<BoardResponse> getBoard(@PathVariable Long boardId) {
+        BoardResponse response = boardService.getBoard(boardId, getAuthenticatedUserId());
+        return ResponseEntity.ok(response);
+    }
 }

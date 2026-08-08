@@ -11,7 +11,8 @@ public record UpdateTaskRequest(
     Long assignedToUserId,
     Instant dueAt,
     Integer position,
-    Boolean clearDueAt
+    Boolean clearDueAt,
+    Boolean clearAssignee
 ) {
     
 }

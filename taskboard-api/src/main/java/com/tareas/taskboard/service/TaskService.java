@@ -126,7 +126,10 @@ public class TaskService {
             }
         }
 
-        if (request.assignedToUserId() != null) {
+        if (Boolean.TRUE.equals(request.clearAssignee())) {
+            task.setAssignedTo(null);
+
+        } else if (request.assignedToUserId() != null) {
             User assignedTo = userRepository.findById(request.assignedToUserId())
                     .orElseThrow(() -> new UserNotFoundException("User not found"));
             if (!board.getOwner().getId().equals(assignedTo.getId())
@@ -134,10 +137,6 @@ public class TaskService {
                 throw new AccessDeniedException("Assigned user is not a member of this board");
             }
             task.setAssignedTo(assignedTo);
-        }
-
-        if (request.dueAt() != null) {
-            task.setDueAt(request.dueAt());
         }
         task.setUpdatedAt(Instant.now());
 

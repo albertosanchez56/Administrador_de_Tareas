@@ -58,7 +58,7 @@ export class BoardDetailComponent {
   editAssignedToUserId: number | null = null;
   membersOpen = false;
 
-  inviteEmail = ''; 
+  inviteEmail = '';
   inviting = false;
   inviteError = false;
   selectedMemberId: number | null = null;
@@ -276,7 +276,7 @@ export class BoardDetailComponent {
           : { clearDueAt: true }),
         ...(this.editAssignedToUserId != null
           ? { assignedToUserId: this.editAssignedToUserId }
-          : {}),
+          : { clearAssignee: true }),
       })
       .subscribe({
         next: () => {

@@ -41,4 +41,8 @@ export class AuthService {
         const raw = localStorage.getItem('userId');
         return raw ? Number(raw) : null;
     }
+
+    register(username: string, email: string, password: string) {
+        return this.http.post('/api/auth/register', { username, email, password });
+      }
 }

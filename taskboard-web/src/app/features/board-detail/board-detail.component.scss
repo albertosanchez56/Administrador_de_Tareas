@@ -779,6 +779,69 @@
   line-height: 1.4;
 }
 
+.board__loading {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  min-height: 14rem;
+  padding: 2.25rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: 1.1rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--teal) 8%, white), transparent 55%),
+    color-mix(in srgb, white 55%, transparent);
+  animation: board-up 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.board__loading-mark {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 2.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.board__loading-mark span {
+  display: block;
+  width: 0.45rem;
+  border-radius: 999px;
+  background: var(--teal);
+  transform-origin: bottom center;
+  animation: loading-bar 900ms ease-in-out infinite;
+}
+
+.board__loading-mark span:nth-child(1) {
+  height: 0.85rem;
+  animation-delay: 0ms;
+  background: color-mix(in srgb, var(--teal) 75%, white);
+}
+
+.board__loading-mark span:nth-child(2) {
+  height: 1.35rem;
+  animation-delay: 120ms;
+}
+
+.board__loading-mark span:nth-child(3) {
+  height: 1.05rem;
+  animation-delay: 240ms;
+  background: color-mix(in srgb, var(--coral) 70%, var(--teal));
+}
+
+.board__loading-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.board__loading-text {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
 .board__card {
   position: relative;
   display: grid;
@@ -970,6 +1033,18 @@
   }
 }
 
+@keyframes loading-bar {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
 @media (min-width: 720px) {
   .board__create-fields {
     grid-template-columns: 1.4fr 1fr auto;
@@ -1043,7 +1118,14 @@
   .board__column,
   .board__modal-backdrop,
   .board__edit,
-  .board__members {
+  .board__members,
+  .board__loading {
     animation: none;
+  }
+
+  .board__loading-mark span {
+    animation: none;
+    opacity: 0.85;
+    transform: none;
   }
 }

@@ -19,116 +19,85 @@
           <h1 class="board__title">{{ boardTitle }}</h1>
           <p class="board__meta">ID {{ boardId }} · Clic para editar · Arrastra entre columnas</p>
         </div>
-        <button
-          class="board__members-toggle"
-          type="button"
-          [attr.aria-expanded]="membersOpen"
-          aria-controls="board-members-panel"
-          (click)="toggleMembers()"
-        >
+        <button class="board__members-toggle" type="button" [attr.aria-expanded]="membersOpen"
+          aria-controls="board-members-panel" (click)="toggleMembers()">
           <span class="board__members-toggle-label">Miembros</span>
           <span class="board__members-toggle-count">{{ members.length }}</span>
-          <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen" aria-hidden="true">▾</span>
+          <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen"
+            aria-hidden="true">▾</span>
         </button>
       </div>
     </div>
 
     <div class="board__layout" [class.board__layout--with-members]="membersOpen">
       @if (membersOpen) {
-        <aside
-          class="board__members"
-          id="board-members-panel"
-          aria-label="Miembros del tablero"
-        >
-          <header class="board__members-head">
-            <h2 class="board__members-title">Equipo</h2>
-            <p class="board__members-meta">{{ members.length }} en este tablero</p>
-          </header>
+      <aside class="board__members" id="board-members-panel" aria-label="Miembros del tablero">
+        <header class="board__members-head">
+          <h2 class="board__members-title">Equipo</h2>
+          <p class="board__members-meta">{{ members.length }} en este tablero</p>
+        </header>
 
-          <form class="board__invite" (ngSubmit)="onInvite()" novalidate>
-            <label class="board__label" for="invite-email">Invitar por email</label>
-            <div class="board__invite-row">
-              <input
-                class="board__input"
-                id="invite-email"
-                name="inviteEmail"
-                type="email"
-                placeholder="usuario@email.com"
-                autocomplete="email"
-                [(ngModel)]="inviteEmail"
-              />
-              <button
-                class="board__invite-submit"
-                type="submit"
-                [disabled]="inviting || !inviteEmail.trim()"
-              >
-                {{ inviting ? '…' : 'Invitar' }}
+        @if (isBoardOwner) {
+        <form class="board__invite" (ngSubmit)="onInvite()" novalidate>
+          <label class="board__label" for="invite-email">Invitar por email</label>
+          <div class="board__invite-row">
+            <input class="board__input" id="invite-email" name="inviteEmail" type="email"
+              placeholder="usuario@email.com" autocomplete="email" [(ngModel)]="inviteEmail" />
+            <button class="board__invite-submit" type="submit" [disabled]="inviting || !inviteEmail.trim()">
+              {{ inviting ? '…' : 'Invitar' }}
+            </button>
+          </div>
+          @if (inviteError) {
+          <p class="board__invite-error" role="alert">
+            No se pudo invitar. Revisa el email o si ya es miembro.
+          </p>
+          }
+        </form>
+        }
+
+        <ul class="board__members-list">
+          @for (m of members; track m.userId) {
+          <li class="board__members-item" [class.board__members-item--open]="selectedMemberId === m.userId">
+            <button class="board__members-row" type="button" (click)="toggleMemberDetail(m)"
+              [attr.aria-expanded]="selectedMemberId === m.userId">
+              <span class="board__members-avatar" aria-hidden="true">{{ memberInitial(m.username) }}</span>
+              <div class="board__members-info">
+                <span class="board__members-name">{{ m.username }}</span>
+                <span class="board__members-role">{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</span>
+              </div>
+              <span class="board__members-chevron" [class.board__members-chevron--open]="selectedMemberId === m.userId"
+                aria-hidden="true">▾</span>
+            </button>
+
+            @if (selectedMemberId === m.userId) {
+            <div class="board__members-detail">
+              <dl class="board__members-meta-list">
+                <div class="board__members-meta-row">
+                  <dt>Rol</dt>
+                  <dd>{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</dd>
+                </div>
+                <div class="board__members-meta-row">
+                  <dt>Desde</dt>
+                  <dd>{{ m.createdAt | date: 'dd/MM/yyyy' }}</dd>
+                </div>
+              </dl>
+
+              @if (isBoardOwner && canRemoveMember(m)) {
+              <button class="board__members-remove" type="button" [disabled]="removingMember"
+                (click)="onRemoveMember(m, $event)">
+                {{ removingMember ? 'Quitando…' : 'Quitar del tablero' }}
               </button>
+              } @else if (m.role === 'OWNER'){
+              <p class="board__members-owner-note">El propietario no se puede quitar.</p>
+              }
             </div>
-            @if (inviteError) {
-              <p class="board__invite-error" role="alert">
-                No se pudo invitar. Revisa el email o si ya es miembro.
-              </p>
             }
-          </form>
-
-          <ul class="board__members-list">
-            @for (m of members; track m.userId) {
-              <li
-                class="board__members-item"
-                [class.board__members-item--open]="selectedMemberId === m.userId"
-              >
-                <button
-                  class="board__members-row"
-                  type="button"
-                  (click)="toggleMemberDetail(m)"
-                  [attr.aria-expanded]="selectedMemberId === m.userId"
-                >
-                  <span class="board__members-avatar" aria-hidden="true">{{ memberInitial(m.username) }}</span>
-                  <div class="board__members-info">
-                    <span class="board__members-name">{{ m.username }}</span>
-                    <span class="board__members-role">{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</span>
-                  </div>
-                  <span
-                    class="board__members-chevron"
-                    [class.board__members-chevron--open]="selectedMemberId === m.userId"
-                    aria-hidden="true"
-                  >▾</span>
-                </button>
-
-                @if (selectedMemberId === m.userId) {
-                  <div class="board__members-detail">
-                    <dl class="board__members-meta-list">
-                      <div class="board__members-meta-row">
-                        <dt>Rol</dt>
-                        <dd>{{ m.role === 'OWNER' ? 'Propietario' : 'Miembro' }}</dd>
-                      </div>
-                      <div class="board__members-meta-row">
-                        <dt>Desde</dt>
-                        <dd>{{ m.createdAt | date: 'dd/MM/yyyy' }}</dd>
-                      </div>
-                    </dl>
-
-                    @if (canRemoveMember(m)) {
-                      <button
-                        class="board__members-remove"
-                        type="button"
-                        [disabled]="removingMember"
-                        (click)="onRemoveMember(m, $event)"
-                      >
-                        {{ removingMember ? 'Quitando…' : 'Quitar del tablero' }}
-                      </button>
-                    } @else {
-                      <p class="board__members-owner-note">El propietario no se puede quitar.</p>
-                    }
-                  </div>
-                }
-              </li>
-            } @empty {
-              <li class="board__members-empty">Aún no hay miembros</li>
-            }
-          </ul>
-        </aside>
+          </li>
+          } @empty {
+          <li class="board__members-empty">Aún no hay miembros</li>
+          }
+        </ul>
+      </aside>
       }
 
       <div class="board__main">
@@ -149,167 +118,181 @@
         </form>
 
         @if (error) {
-        <p class="board__error" role="alert">No se ha podido actualizar el tablero. Revisa la sesión o inténtalo de nuevo.
+        <p class="board__error" role="alert">No se ha podido actualizar el tablero. Revisa la sesión o inténtalo de
+          nuevo.
         </p>
         }
 
+        @if (loading) {
+          <div class="board__loading" role="status" aria-live="polite">
+            <div class="board__loading-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="board__loading-title">Cargando tablero</p>
+            <p class="board__loading-text">Preparando columnas y tareas…</p>
+          </div>
+        } @else {
         <div class="board__columns" role="list" cdkDropListGroup>
-      <section class="board__column board__column--todo" role="listitem">
-        <header class="board__column-head">
-          <h2 class="board__column-title">Por hacer</h2>
-          <span class="board__column-count">{{ todo.length }}</span>
-        </header>
-        <div class="board__cards" cdkDropList [cdkDropListData]="todo" (cdkDropListDropped)="drop($event, 'TODO')">
-          @for (task of todo; track task.id) {
-          <article class="board__card" cdkDrag (cdkDragStarted)="onDragStarted()" (cdkDragEnded)="onDragEnded()"
-            (click)="openEdit(task)">
-            <span class="board__card-bar board__card-bar--teal"></span>
-            <h3 class="board__card-title">{{ task.title }}</h3>
-            <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
-            @if (task.dueAt) {
-              <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-            } @else {
-              <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
-            }
-            <div class="board__card-foot">
-              @if (task.assignedTo) {
-              <span class="board__card-chip">{{ task.assignedTo }}</span>
-              } @else {
-              <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
-              }
-            </div>
-
-            <ng-template cdkDragPreview>
-              <div class="board-drag-preview">
-                <span class="board-drag-preview__bar"></span>
-                <p class="board-drag-preview__title">{{ task.title }}</p>
-                <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+          <section class="board__column board__column--todo" role="listitem">
+            <header class="board__column-head">
+              <h2 class="board__column-title">Por hacer</h2>
+              <span class="board__column-count">{{ todo.length }}</span>
+            </header>
+            <div class="board__cards" cdkDropList [cdkDropListData]="todo" (cdkDropListDropped)="drop($event, 'TODO')">
+              @for (task of todo; track task.id) {
+              <article class="board__card" cdkDrag (cdkDragStarted)="onDragStarted()" (cdkDragEnded)="onDragEnded()"
+                (click)="openEdit(task)">
+                <span class="board__card-bar board__card-bar--teal"></span>
+                <h3 class="board__card-title">{{ task.title }}</h3>
+                <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
                 @if (task.dueAt) {
-                  <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
                 }
-                <div class="board-drag-preview__foot">
+                <div class="board__card-foot">
                   @if (task.assignedTo) {
-                  <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
                   } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
                   }
                 </div>
-              </div>
-            </ng-template>
-          </article>
-          }
-          @if (todo.length === 0) {
-          <p class="board__empty-col">Suelta tareas aquí</p>
-          }
-        </div>
-      </section>
 
-      <section class="board__column board__column--doing" role="listitem">
-        <header class="board__column-head">
-          <h2 class="board__column-title">En curso</h2>
-          <span class="board__column-count">{{ doing.length }}</span>
-        </header>
-        <div class="board__cards" cdkDropList [cdkDropListData]="doing" (cdkDropListDropped)="drop($event, 'DOING')">
-          @for (task of doing; track task.id) {
-          <article class="board__card" cdkDrag (cdkDragStarted)="onDragStarted()" (cdkDragEnded)="onDragEnded()"
-            (click)="openEdit(task)">
-            <span class="board__card-bar board__card-bar--coral"></span>
-            <h3 class="board__card-title">{{ task.title }}</h3>
-            <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
-            @if (task.dueAt) {
-              <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-            } @else {
-              <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
-            }
-            <div class="board__card-foot">
-              @if (task.assignedTo) {
-              <span class="board__card-chip">{{ task.assignedTo }}</span>
-              } @else {
-              <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
+                <ng-template cdkDragPreview>
+                  <div class="board-drag-preview">
+                    <span class="board-drag-preview__bar"></span>
+                    <p class="board-drag-preview__title">{{ task.title }}</p>
+                    <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+                    @if (task.dueAt) {
+                    <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    } @else {
+                    <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                    }
+                    <div class="board-drag-preview__foot">
+                      @if (task.assignedTo) {
+                      <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                      } @else {
+                      <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                      }
+                    </div>
+                  </div>
+                </ng-template>
+              </article>
+              }
+              @if (todo.length === 0) {
+              <p class="board__empty-col">Suelta tareas aquí</p>
               }
             </div>
+          </section>
 
-            <ng-template cdkDragPreview>
-              <div class="board-drag-preview">
-                <span class="board-drag-preview__bar board-drag-preview__bar--coral"></span>
-                <p class="board-drag-preview__title">{{ task.title }}</p>
-                <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+          <section class="board__column board__column--doing" role="listitem">
+            <header class="board__column-head">
+              <h2 class="board__column-title">En curso</h2>
+              <span class="board__column-count">{{ doing.length }}</span>
+            </header>
+            <div class="board__cards" cdkDropList [cdkDropListData]="doing"
+              (cdkDropListDropped)="drop($event, 'DOING')">
+              @for (task of doing; track task.id) {
+              <article class="board__card" cdkDrag (cdkDragStarted)="onDragStarted()" (cdkDragEnded)="onDragEnded()"
+                (click)="openEdit(task)">
+                <span class="board__card-bar board__card-bar--coral"></span>
+                <h3 class="board__card-title">{{ task.title }}</h3>
+                <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
                 @if (task.dueAt) {
-                  <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
                 }
-                <div class="board-drag-preview__foot">
+                <div class="board__card-foot">
                   @if (task.assignedTo) {
-                  <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
                   } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
                   }
                 </div>
-              </div>
-            </ng-template>
-          </article>
-          }
-          @if (doing.length === 0) {
-          <p class="board__empty-col">Suelta tareas aquí</p>
-          }
-        </div>
-      </section>
 
-      <section class="board__column board__column--done" role="listitem">
-        <header class="board__column-head">
-          <h2 class="board__column-title">Hecho</h2>
-          <span class="board__column-count">{{ done.length }}</span>
-        </header>
-        <div class="board__cards" cdkDropList [cdkDropListData]="done" (cdkDropListDropped)="drop($event, 'DONE')">
-          @for (task of done; track task.id) {
-          <article class="board__card board__card--done" cdkDrag (cdkDragStarted)="onDragStarted()"
-            (cdkDragEnded)="onDragEnded()" (click)="openEdit(task)">
-            <span class="board__card-bar board__card-bar--teal"></span>
-            <h3 class="board__card-title">{{ task.title }}</h3>
-            <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
-            @if (task.dueAt) {
-              <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-            } @else {
-              <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
-            }
-            <div class="board__card-foot">
-              @if (task.assignedTo) {
-              <span class="board__card-chip">{{ task.assignedTo }}</span>
-              } @else {
-              <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
+                <ng-template cdkDragPreview>
+                  <div class="board-drag-preview">
+                    <span class="board-drag-preview__bar board-drag-preview__bar--coral"></span>
+                    <p class="board-drag-preview__title">{{ task.title }}</p>
+                    <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+                    @if (task.dueAt) {
+                    <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    } @else {
+                    <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                    }
+                    <div class="board-drag-preview__foot">
+                      @if (task.assignedTo) {
+                      <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                      } @else {
+                      <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                      }
+                    </div>
+                  </div>
+                </ng-template>
+              </article>
+              }
+              @if (doing.length === 0) {
+              <p class="board__empty-col">Suelta tareas aquí</p>
               }
             </div>
+          </section>
 
-            <ng-template cdkDragPreview>
-              <div class="board-drag-preview">
-                <span class="board-drag-preview__bar"></span>
-                <p class="board-drag-preview__title">{{ task.title }}</p>
-                <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+          <section class="board__column board__column--done" role="listitem">
+            <header class="board__column-head">
+              <h2 class="board__column-title">Hecho</h2>
+              <span class="board__column-count">{{ done.length }}</span>
+            </header>
+            <div class="board__cards" cdkDropList [cdkDropListData]="done" (cdkDropListDropped)="drop($event, 'DONE')">
+              @for (task of done; track task.id) {
+              <article class="board__card board__card--done" cdkDrag (cdkDragStarted)="onDragStarted()"
+                (cdkDragEnded)="onDragEnded()" (click)="openEdit(task)">
+                <span class="board__card-bar board__card-bar--teal"></span>
+                <h3 class="board__card-title">{{ task.title }}</h3>
+                <p class="board__card-desc">{{ task.description || 'Sin descripción' }}</p>
                 @if (task.dueAt) {
-                  <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
                 }
-                <div class="board-drag-preview__foot">
+                <div class="board__card-foot">
                   @if (task.assignedTo) {
-                  <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                  <span class="board__card-chip">{{ task.assignedTo }}</span>
                   } @else {
-                  <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                  <span class="board__card-chip board__card-chip--muted">Sin asignar</span>
                   }
                 </div>
-              </div>
-            </ng-template>
-          </article>
-          }
-          @if (done.length === 0) {
-          <p class="board__empty-col">Suelta tareas aquí</p>
-          }
+
+                <ng-template cdkDragPreview>
+                  <div class="board-drag-preview">
+                    <span class="board-drag-preview__bar"></span>
+                    <p class="board-drag-preview__title">{{ task.title }}</p>
+                    <p class="board-drag-preview__desc">{{ task.description || 'Sin descripción' }}</p>
+                    @if (task.dueAt) {
+                    <span class="board__card-due">{{ task.dueAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    } @else {
+                    <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin fecha de entrega</span>
+                    }
+                    <div class="board-drag-preview__foot">
+                      @if (task.assignedTo) {
+                      <span class="board-drag-preview__chip">{{ task.assignedTo }}</span>
+                      } @else {
+                      <span class="board-drag-preview__chip board-drag-preview__chip--muted">Sin asignar</span>
+                      }
+                    </div>
+                  </div>
+                </ng-template>
+              </article>
+              }
+              @if (done.length === 0) {
+              <p class="board__empty-col">Suelta tareas aquí</p>
+              }
+            </div>
+          </section>
         </div>
-      </section>
-    </div>
+        }
       </div>
     </div>
   </div>
@@ -336,34 +319,20 @@
         </div>
         <div class="board__field">
           <label class="board__label" for="edit-assignee">Asignado a</label>
-          <select
-            class="board__input"
-            id="edit-assignee"
-            name="editAssignedToUserId"
-            [(ngModel)]="editAssignedToUserId"
-          >
+          <select class="board__input" id="edit-assignee" name="editAssignedToUserId"
+            [(ngModel)]="editAssignedToUserId">
             <option [ngValue]="null">Sin asignar</option>
             @for (m of members; track m.userId) {
-              <option [ngValue]="m.userId">{{ m.username }}</option>
+            <option [ngValue]="m.userId">{{ m.username }}</option>
             }
           </select>
         </div>
         <div class="board__field">
           <label class="board__label" for="edit-dueAt">Fecha de entrega</label>
           <div class="board__due-row">
-            <input
-              class="board__input"
-              id="edit-dueAt"
-              name="editDueAt"
-              type="datetime-local"
-              [(ngModel)]="editDueAt"
-            />
-            <button
-              class="board__due-clear"
-              type="button"
-              [disabled]="!editDueAt"
-              (click)="clearDueAt()"
-            >
+            <input class="board__input" id="edit-dueAt" name="editDueAt" type="datetime-local"
+              [(ngModel)]="editDueAt" />
+            <button class="board__due-clear" type="button" [disabled]="!editDueAt" (click)="clearDueAt()">
               Quitar fecha
             </button>
           </div>

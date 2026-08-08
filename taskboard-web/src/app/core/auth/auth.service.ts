@@ -13,13 +13,15 @@ export interface LoginResponse {
 export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly tokenKey = 'accessToken';
+    
 
     login(username: string, password: string) {
         return this.http.post<LoginResponse>('/api/auth/login', { username, password }).pipe(
             tap(response => {
                 localStorage.setItem(this.tokenKey, response.accessToken);
+                localStorage.setItem('userId', String(response.userId));
             })
-        ); 
+        );
     }
 
     getToken(): string | null {
@@ -32,5 +34,11 @@ export class AuthService {
 
     logout(): void {
         localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem('userId');
+    }
+
+    getUserId(): number | null {
+        const raw = localStorage.getItem('userId');
+        return raw ? Number(raw) : null;
     }
 }

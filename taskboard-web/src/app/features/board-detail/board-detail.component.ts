@@ -14,6 +14,7 @@ import { PageHeader } from '../../shared/page-header/page-header';
 import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
 import { BoardMember, BoardService } from '../../core/boards/board.service';
 import { DatePipe } from '@angular/common';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -34,6 +35,7 @@ export class BoardDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly tasksApi = inject(TaskService);
   private readonly boardApi = inject(BoardService);
+  private readonly auth = inject(AuthService);
 
   boardId = this.route.snapshot.paramMap.get('boardId') ?? '';
   boardTitle = 'Tablero';
@@ -64,14 +66,18 @@ export class BoardDetailComponent {
   selectedMemberId: number | null = null;
   removingMember = false;
 
+  boardOwnerUserId: number | null = null;
+
   constructor() {
     this.loadBoard();
     this.loadTasks();
     this.loadMembers();
   }
 
-  loadTasks() {
-    this.loading = true;
+  loadTasks(showLoading = true) {
+    if (showLoading) {
+      this.loading = true;
+    }
     this.error = false;
     this.tasksApi.getTasksByBoard(this.boardId).subscribe({
       next: (tasks) => {
@@ -97,6 +103,7 @@ export class BoardDetailComponent {
     this.boardApi.getBoard(this.boardId).subscribe({
       next: (board) => {
         this.boardTitle = board.title;
+        this.boardOwnerUserId = board.ownerUserId;
       },
       error: () => {
         this.error = true;
@@ -171,7 +178,7 @@ export class BoardDetailComponent {
         next: () => {
           this.newTitle = '';
           this.newDescription = '';
-          this.loadTasks();
+          this.loadTasks(false);
         },
         error: () => {
           this.error = true;
@@ -181,10 +188,14 @@ export class BoardDetailComponent {
 
 
   deleteTask(taskId: number) {
+    const ok = confirm('¿Eliminar esta tarea? No se puede deshacer.');
+    if (!ok) {
+      return;
+    }
     this.tasksApi.deleteTask(this.boardId, taskId).subscribe({
       next: () => {
         this.cancelEdit();
-        this.loadTasks();
+        this.loadTasks(false);
       },
       error: () => {
         this.error = true;
@@ -213,10 +224,10 @@ export class BoardDetailComponent {
         position: event.currentIndex,
       })
       .subscribe({
-        next: () => this.loadTasks(),
+        next: () => this.loadTasks(false),
         error: () => {
           this.error = true;
-          this.loadTasks();
+          this.loadTasks(false);
         },
       });
   }
@@ -281,7 +292,7 @@ export class BoardDetailComponent {
       .subscribe({
         next: () => {
           this.cancelEdit();
-          this.loadTasks();
+          this.loadTasks(false);
         },
         error: () => {
           this.error = true;
@@ -307,5 +318,14 @@ export class BoardDetailComponent {
         this.inviting = false;
       },
     });
+  }
+
+  get isBoardOwner(): boolean {
+    const me = this.auth.getUserId();
+    return (
+      me != null &&
+      this.boardOwnerUserId != null &&
+      me === this.boardOwnerUserId
+    );
   }
 }

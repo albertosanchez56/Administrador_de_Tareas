@@ -47,4 +47,11 @@ export class BoardService {
   removeMember(boardId: number | string, userId: number) {
     return this.http.delete<void>(`/api/boards/${boardId}/members/${userId}`);
   }
+
+  updateBoard(boardId: number | string, title: string, description?: string) {
+    return this.http.put<Board>(`/api/boards/${boardId}`, { title, description });
+  }
+  deleteBoard(boardId: number | string) {
+    return this.http.delete<void>(`/api/boards/${boardId}`);
+  }
 }

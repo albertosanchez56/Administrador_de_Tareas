@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
 import com.tareas.taskboard.dto.InviteMemberRequest;
+import com.tareas.taskboard.dto.UpdateBoardRequest;
 import com.tareas.taskboard.service.BoardService;
 
 import jakarta.validation.Valid;
@@ -73,5 +75,18 @@ public class BoardController {
     public ResponseEntity<BoardResponse> getBoard(@PathVariable Long boardId) {
         BoardResponse response = boardService.getBoard(boardId, getAuthenticatedUserId());
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{boardId}")
+    public ResponseEntity<BoardResponse> updateBoard(@PathVariable Long boardId,
+            @Valid @RequestBody UpdateBoardRequest request) {
+        BoardResponse response = boardService.updateBoard(boardId, request, getAuthenticatedUserId());
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId) {
+        boardService.deleteBoard(boardId, getAuthenticatedUserId());
+        return ResponseEntity.noContent().build();
     }
 }

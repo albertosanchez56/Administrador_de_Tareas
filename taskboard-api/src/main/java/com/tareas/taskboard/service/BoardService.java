@@ -1,5 +1,6 @@
 package com.tareas.taskboard.service;
 
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +8,7 @@ import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
 import com.tareas.taskboard.dto.InviteMemberRequest;
+import com.tareas.taskboard.dto.UpdateBoardRequest;
 import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.BoardMemberId;
 import com.tareas.taskboard.entity.BoardMembers;
@@ -146,9 +148,38 @@ public class BoardService {
 
         if (!board.getOwner().getId().equals(userId) && !boardMemberRepository.existsByBoardAndUser(board,
                 userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")))) {
-            throw new AccessDeniedException("ou are not allowed to access this board");
+            throw new AccessDeniedException("You are not allowed to access this board");
         }
 
         return BoardResponse.from(board);
+    }
+
+    @Transactional
+    public BoardResponse updateBoard(Long boardId, UpdateBoardRequest request, Long userId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(userId)) {
+            throw new AccessDeniedException("You are not allowed to update/delete this board");
+        }
+
+        board.setTitle(request.title());
+        board.setDescription(request.description());
+        board.setUpdatedAt(Instant.now());
+
+        Board updated = boardRepository.save(board);
+        return BoardResponse.from(updated);
+    }
+
+    @Transactional
+    public void deleteBoard(Long boardId, Long userId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(userId)) {
+            throw new AccessDeniedException("You are not allowed to update/delete this board");
+        }
+
+        boardRepository.delete(board);
     }
 }

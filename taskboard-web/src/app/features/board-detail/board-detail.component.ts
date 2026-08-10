@@ -67,6 +67,10 @@ export class BoardDetailComponent {
   removingMember = false;
 
   boardOwnerUserId: number | null = null;
+  editingBoard = false;
+
+  savingBoard = false;
+  boardEditError = false;
 
   constructor() {
     this.loadBoard();
@@ -318,6 +322,21 @@ export class BoardDetailComponent {
         this.inviting = false;
       },
     });
+  }
+
+  openBoardEdit(){
+  }
+
+  cancelBoardEdit(){
+
+  }
+
+  saveBoardEdit(){
+
+  }
+
+  deleteBoard(){
+    
   }
 
   get isBoardOwner(): boolean {

@@ -19,13 +19,20 @@
           <h1 class="board__title">{{ boardTitle }}</h1>
           <p class="board__meta">ID {{ boardId }} · Clic para editar · Arrastra entre columnas</p>
         </div>
-        <button class="board__members-toggle" type="button" [attr.aria-expanded]="membersOpen"
-          aria-controls="board-members-panel" (click)="toggleMembers()">
-          <span class="board__members-toggle-label">Miembros</span>
-          <span class="board__members-toggle-count">{{ members.length }}</span>
-          <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen"
-            aria-hidden="true">▾</span>
-        </button>
+        <div class="board__toolbar-actions">
+          @if (isBoardOwner) {
+          <button class="board__board-edit-toggle" type="button" (click)="openBoardEdit()">
+            Editar tablero
+          </button>
+          }
+          <button class="board__members-toggle" type="button" [attr.aria-expanded]="membersOpen"
+            aria-controls="board-members-panel" (click)="toggleMembers()">
+            <span class="board__members-toggle-label">Miembros</span>
+            <span class="board__members-toggle-count">{{ members.length }}</span>
+            <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen"
+              aria-hidden="true">▾</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -124,15 +131,15 @@
         }
 
         @if (loading) {
-          <div class="board__loading" role="status" aria-live="polite">
-            <div class="board__loading-mark" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <p class="board__loading-title">Cargando tablero</p>
-            <p class="board__loading-text">Preparando columnas y tareas…</p>
+        <div class="board__loading" role="status" aria-live="polite">
+          <div class="board__loading-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
+          <p class="board__loading-title">Cargando tablero</p>
+          <p class="board__loading-text">Preparando columnas y tareas…</p>
+        </div>
         } @else {
         <div class="board__columns" role="list" cdkDropListGroup>
           <section class="board__column board__column--todo" role="listitem">
@@ -346,6 +353,46 @@
           <button class="board__edit-cancel" type="button" (click)="cancelEdit()">Cancelar</button>
           <button class="board__submit" type="submit" [disabled]="savingEdit || !editTitle.trim()">
             {{ savingEdit ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  }
+  @if (editingBoard) {
+  <div class="board__modal" role="dialog" aria-modal="true" aria-labelledby="board-edit-dialog-title">
+    <button class="board__modal-backdrop" type="button" (click)="cancelBoardEdit()"
+      aria-label="Cerrar diálogo"></button>
+    <form class="board__edit" (ngSubmit)="saveBoardEdit()" novalidate>
+      <div class="board__edit-head">
+        <h2 class="board__edit-title" id="board-edit-dialog-title">Editar tablero</h2>
+        <button class="board__edit-close" type="button" (click)="cancelBoardEdit()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+      <div class="board__edit-fields">
+        <div class="board__field board__field--grow">
+          <label class="board__label" for="board-edit-title">Título</label>
+          <input class="board__input" id="board-edit-title" name="boardEditTitle" type="text" required
+            [(ngModel)]="boardEditTitle" />
+        </div>
+        <div class="board__field">
+          <label class="board__label" for="board-edit-description">Descripción</label>
+          <textarea class="board__input board__textarea" id="board-edit-description" name="boardEditDescription"
+            rows="3" placeholder="Opcional" [(ngModel)]="boardEditDescription"></textarea>
+        </div>
+      </div>
+      @if (boardEditError) {
+      <p class="board__invite-error" role="alert">No se pudo guardar el tablero.</p>
+      }
+      <div class="board__edit-actions">
+        <button class="board__edit-delete" type="button" (click)="deleteBoard()">
+          Eliminar
+        </button>
+        <div class="board__edit-actions-end">
+          <button class="board__edit-cancel" type="button" (click)="cancelBoardEdit()">Cancelar</button>
+          <button class="board__submit" type="submit" [disabled]="savingBoard || !boardEditTitle.trim()">
+            {{ savingBoard ? 'Guardando…' : 'Guardar' }}
           </button>
         </div>
       </div>

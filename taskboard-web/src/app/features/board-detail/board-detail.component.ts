@@ -72,6 +72,10 @@ export class BoardDetailComponent {
   savingBoard = false;
   boardEditError = false;
 
+  boardDescription = '';
+  boardEditTitle = '';
+  boardEditDescription = '';
+
   constructor() {
     this.loadBoard();
     this.loadTasks();
@@ -108,6 +112,7 @@ export class BoardDetailComponent {
       next: (board) => {
         this.boardTitle = board.title;
         this.boardOwnerUserId = board.ownerUserId;
+        this.boardDescription = board.description ?? '';
       },
       error: () => {
         this.error = true;
@@ -324,19 +329,48 @@ export class BoardDetailComponent {
     });
   }
 
-  openBoardEdit(){
+  openBoardEdit() {
+    this.editingBoard = true;
+    this.boardEditTitle = this.boardTitle;
+    this.boardEditDescription = this.boardDescription;
+    this.boardEditError = false;
   }
 
-  cancelBoardEdit(){
-
+  cancelBoardEdit() {
+    this.editingBoard = false;
+    this.boardEditTitle = '';
+    this.boardEditDescription = '';
+    this.savingBoard = false;
+    this.boardEditError = false;
   }
 
-  saveBoardEdit(){
-
+  saveBoardEdit() {
+    if (!this.boardEditTitle.trim() || this.savingBoard) {
+      return;
+    }
+    this.savingBoard = true;
+    this.boardEditError = false;
+    this.boardApi
+      .updateBoard(
+        this.boardId,
+        this.boardEditTitle.trim(),
+        this.boardEditDescription.trim() || undefined,
+      )
+      .subscribe({
+        next: (board) => {
+          this.boardTitle = board.title;
+          this.boardDescription = board.description ?? '';
+          this.cancelBoardEdit();
+        },
+        error: () => {
+          this.boardEditError = true;
+          this.savingBoard = false;
+        },
+      });
   }
 
-  deleteBoard(){
-    
+  deleteBoard() {
+
   }
 
   get isBoardOwner(): boolean {

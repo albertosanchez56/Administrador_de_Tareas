@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute,Router, RouterLink } from '@angular/router';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -36,6 +36,7 @@ export class BoardDetailComponent {
   private readonly tasksApi = inject(TaskService);
   private readonly boardApi = inject(BoardService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   boardId = this.route.snapshot.paramMap.get('boardId') ?? '';
   boardTitle = 'Tablero';
@@ -370,6 +371,18 @@ export class BoardDetailComponent {
   }
 
   deleteBoard() {
+    const ok = confirm('¿Eliminar este tablero? No se puede deshacer.');
+    if (!ok) {
+      return;
+    }
+    this.boardApi.deleteBoard(this.boardId).subscribe({
+      next: () => {
+        this.router.navigate(['/boards']);
+      },
+      error: () => {
+        this.boardEditError = true;
+      },
+    });
 
   }
 

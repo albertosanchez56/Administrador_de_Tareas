@@ -168,13 +168,25 @@ export class BoardDetailComponent {
           this.editAssignedToUserId = null;
         }
         this.removingMember = false;
+        this.unassignLocalTasks(member.username);
         this.loadMembers();
+        this.loadTasks(false);
       },
       error: () => {
         this.removingMember = false;
         this.error = true;
       },
     });
+  }
+
+  private unassignLocalTasks(username: string) {
+    const clear = (tasks: Task[]) =>
+      tasks.map((task) =>
+        task.assignedTo === username ? { ...task, assignedTo: null } : task,
+      );
+    this.todo = clear(this.todo);
+    this.doing = clear(this.doing);
+    this.done = clear(this.done);
   }
 
   onCreate() {

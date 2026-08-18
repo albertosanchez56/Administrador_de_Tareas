@@ -15,4 +15,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByIdAndBoard(Long taskId, Board board);
 
     long countByBoardAndStatus(Board board, Task.TaskStatus status);
+
+    List<Task> findByBoardAndAssignedTo_Id(Board board, Long userId);
 }

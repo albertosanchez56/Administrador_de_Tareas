@@ -13,6 +13,7 @@ import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.BoardMemberId;
 import com.tareas.taskboard.entity.BoardMembers;
 import com.tareas.taskboard.entity.BoardMembers.Role;
+import com.tareas.taskboard.entity.Task;
 import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.exception.AccessDeniedException;
 import com.tareas.taskboard.exception.BoardNotFoundException;
@@ -21,6 +22,7 @@ import com.tareas.taskboard.exception.MemberNotFoundException;
 import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
+import com.tareas.taskboard.repository.TaskRepository;
 import com.tareas.taskboard.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,12 +32,14 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final BoardMemberRepository boardMemberRepository;
+    private final TaskRepository taskRepository;
 
     public BoardService(BoardRepository boardRepository, UserRepository userRepository,
-            BoardMemberRepository boardMemberRepository) {
+            BoardMemberRepository boardMemberRepository, TaskRepository taskRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.boardMemberRepository = boardMemberRepository;
+        this.taskRepository = taskRepository;
     }
 
     // Crea un board nuevo. El ownerUserId viene del JWT (SecurityContext en el
@@ -137,6 +141,13 @@ public class BoardService {
         BoardMembers member = boardMemberRepository
                 .findById(new BoardMemberId(boardId, memberId))
                 .orElseThrow(() -> new MemberNotFoundException("Member not found"));
+
+        List<Task> tasks = taskRepository.findByBoardAndAssignedTo_Id(board, memberId);
+        for (Task task : tasks) {
+            task.setAssignedTo(null);
+            task.setUpdatedAt(Instant.now());
+        }
+        taskRepository.saveAll(tasks);
 
         boardMemberRepository.delete(member);
     }

@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { PageHeader } from '../../shared/page-header/page-header';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-boards',
-  imports: [FormsModule, PageHeader],
+  imports: [FormsModule, PageHeader, DatePipe],
   templateUrl: './boards.html',
   styleUrl: './boards.scss',
 })

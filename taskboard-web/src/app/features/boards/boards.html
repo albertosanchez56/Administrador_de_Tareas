@@ -56,7 +56,7 @@
               </span>
               <span class="boards__tile-desc">{{ board.description || 'Sin descripción' }}</span>
               <span class="boards__tile-foot">
-                <span class="boards__tile-meta">{{ board.createdAt }}</span>
+                <span class="boards__tile-meta">{{ board.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 <span class="boards__tile-actions">
                   @if (isBoardOwner(board)) {
                   <button class="boards__tile-edit" type="button" (click)="openBoardEdit(board, $event)">

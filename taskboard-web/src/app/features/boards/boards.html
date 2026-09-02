@@ -40,10 +40,10 @@
           </div>
         </form>
 
-        <!-- Sustituye por @for cuando conectes el API. Placeholders visuales por ahora. -->
         <div class="boards__grid" role="list">
           @for (board of boards; track board.id) {
-          <button class="boards__tile" type="button" role="listitem" (click)="openBoard(board.id)">
+          <article class="boards__tile" role="listitem" tabindex="0" (click)="openBoard(board.id)"
+            (keydown.enter)="openBoard(board.id)">
             <span class="boards__tile-accent boards__tile-accent--teal"></span>
             <span class="boards__tile-body">
               <span class="boards__tile-head">
@@ -57,12 +57,18 @@
               <span class="boards__tile-desc">{{ board.description || 'Sin descripción' }}</span>
               <span class="boards__tile-foot">
                 <span class="boards__tile-meta">{{ board.createdAt }}</span>
-                <span class="boards__tile-action">Abrir →</span>
+                <span class="boards__tile-actions">
+                  @if (isBoardOwner(board)) {
+                  <button class="boards__tile-edit" type="button" (click)="openBoardEdit(board, $event)">
+                    Editar
+                  </button>
+                  }
+                  <span class="boards__tile-action">Abrir →</span>
+                </span>
               </span>
             </span>
-          </button>
+          </article>
           }
-
 
           <button class="boards__tile boards__tile--new" type="button" role="listitem">
             <span class="boards__tile-new-mark" aria-hidden="true">+</span>
@@ -71,10 +77,8 @@
               <span class="boards__tile-desc">Crea un espacio vacío y empieza desde cero.</span>
             </span>
           </button>
-
         </div>
 
-        <!-- Vacío: quita [hidden] o usa @if (boards.length === 0) cuando conectes datos -->
         @if (boards.length === 0) {
         <div class="boards__empty">
           <div class="boards__empty-visual" aria-hidden="true">
@@ -92,4 +96,45 @@
       </div>
     </div>
   </div>
+
+  @if (editingBoard) {
+  <div class="boards__modal" role="dialog" aria-modal="true" aria-labelledby="boards-edit-dialog-title">
+    <button class="boards__modal-backdrop" type="button" (click)="cancelBoardEdit()"
+      aria-label="Cerrar diálogo"></button>
+    <form class="boards__edit" (ngSubmit)="saveBoardEdit()" novalidate>
+      <div class="boards__edit-head">
+        <h2 class="boards__edit-title" id="boards-edit-dialog-title">Editar tablero</h2>
+        <button class="boards__edit-close" type="button" (click)="cancelBoardEdit()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+      <div class="boards__edit-fields">
+        <div class="boards__field">
+          <label class="boards__label" for="boards-edit-title">Título</label>
+          <input class="boards__input" id="boards-edit-title" name="boardEditTitle" type="text" required
+            [(ngModel)]="boardEditTitle" />
+        </div>
+        <div class="boards__field">
+          <label class="boards__label" for="boards-edit-description">Descripción</label>
+          <textarea class="boards__input boards__textarea" id="boards-edit-description" name="boardEditDescription"
+            rows="3" placeholder="Opcional" [(ngModel)]="boardEditDescription"></textarea>
+        </div>
+      </div>
+      @if (boardEditError) {
+      <p class="boards__edit-error" role="alert">No se pudo guardar el tablero.</p>
+      }
+      <div class="boards__edit-actions">
+        <button class="boards__edit-delete" type="button" (click)="deleteBoard()">
+          Eliminar
+        </button>
+        <div class="boards__edit-actions-end">
+          <button class="boards__edit-cancel" type="button" (click)="cancelBoardEdit()">Cancelar</button>
+          <button class="boards__submit" type="submit" [disabled]="savingBoard || !boardEditTitle.trim()">
+            {{ savingBoard ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  }
 </section>

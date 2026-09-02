@@ -3,6 +3,7 @@ import { Board, BoardService } from '../../core/boards/board.service';
 import { FormsModule } from '@angular/forms';
 import { PageHeader } from '../../shared/page-header/page-header';
 import { Router } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-boards',
@@ -14,6 +15,7 @@ export class Boards {
 
   private readonly boardService = inject(BoardService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   
   boards: Board[] = [];
   loading = false;
@@ -56,5 +58,10 @@ export class Boards {
 
   openBoard(boardId: number) {
     this.router.navigate(['/boards', boardId]);
+  }
+
+  isBoardOwner(board: Board): boolean {
+    const me = this.auth.getUserId();
+    return me != null && me === board.ownerUserId;
   }
 }

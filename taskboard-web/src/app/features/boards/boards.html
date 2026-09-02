@@ -28,26 +28,13 @@
           <div class="boards__create-fields">
             <div class="boards__field">
               <label class="boards__label" for="board-title">Nuevo tablero</label>
-              <input
-                class="boards__input"
-                id="board-title"
-                name="title"
-                type="text"
-                placeholder="Nombre del tablero"
-                required
-                [(ngModel)]="title"
-              />
+              <input class="boards__input" id="board-title" name="title" type="text" placeholder="Nombre del tablero"
+                required [(ngModel)]="title" />
             </div>
             <div class="boards__field boards__field--grow">
               <label class="boards__label" for="board-description">Descripción</label>
-              <input
-                class="boards__input"
-                id="board-description"
-                name="description"
-                type="text"
-                placeholder="Opcional"
-                [(ngModel)]="description"
-              />
+              <input class="boards__input" id="board-description" name="description" type="text" placeholder="Opcional"
+                [(ngModel)]="description" />
             </div>
             <button class="boards__submit" type="submit">Crear</button>
           </div>
@@ -61,7 +48,11 @@
             <span class="boards__tile-body">
               <span class="boards__tile-head">
                 <span class="boards__tile-title">{{ board.title }}</span>
+                @if (isBoardOwner(board)) {
                 <span class="boards__chip boards__chip--owner">Owner</span>
+                } @else {
+                <span class="boards__chip boards__chip--member">Miembro</span>
+                }
               </span>
               <span class="boards__tile-desc">{{ board.description || 'Sin descripción' }}</span>
               <span class="boards__tile-foot">

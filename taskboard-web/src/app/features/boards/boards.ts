@@ -21,14 +21,20 @@ export class Boards {
   boards: Board[] = [];
   loading = false;
   error = false;
-  title = '';
-  description = '';
+
+  creatingBoard = false;
+  createTitle = '';
+  createDescription = '';
+  savingCreate = false;
+  createError = false;
 
   editingBoard: Board | null = null;
   boardEditTitle = '';
   boardEditDescription = '';
   savingBoard = false;
   boardEditError = false;
+
+  searchQuery = '';
 
   constructor() {
     this.loadBoards();
@@ -45,24 +51,6 @@ export class Boards {
     });
   }
 
-  onCreate() {
-    if (!this.title.trim()) {
-      return;
-    }
-
-    this.boardService.createBoard(this.title.trim(), this.description.trim() || undefined)
-      .subscribe({
-        next: () => {
-          this.title = '';
-          this.description = '';
-          this.loadBoards();
-        },
-        error: () => {
-          this.error = true;
-        },
-      });
-  }
-
   openBoard(boardId: number) {
     this.router.navigate(['/boards', boardId]);
   }
@@ -72,8 +60,67 @@ export class Boards {
     return me != null && me === board.ownerUserId;
   }
 
+  get ownedBoardsCount(): number {
+    return this.boards.filter((b) => this.isBoardOwner(b)).length;
+  }
+
+  get memberBoardsCount(): number {
+    return this.boards.length - this.ownedBoardsCount;
+  }
+
+  get filteredBoards(): Board[] {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) {
+      return this.boards;
+    }
+    return this.boards.filter(
+      (b) =>
+        b.title.toLowerCase().includes(q) ||
+        (b.description?.toLowerCase().includes(q) ?? false),
+    );
+  }
+
+  openCreateBoard() {
+    this.cancelBoardEdit();
+    this.creatingBoard = true;
+    this.createTitle = '';
+    this.createDescription = '';
+    this.createError = false;
+  }
+
+  cancelCreateBoard() {
+    this.creatingBoard = false;
+    this.createTitle = '';
+    this.createDescription = '';
+    this.savingCreate = false;
+    this.createError = false;
+  }
+
+  saveCreateBoard() {
+    if (!this.createTitle.trim() || this.savingCreate) {
+      return;
+    }
+
+    this.savingCreate = true;
+    this.createError = false;
+
+    this.boardService
+      .createBoard(this.createTitle.trim(), this.createDescription.trim() || undefined)
+      .subscribe({
+        next: () => {
+          this.cancelCreateBoard();
+          this.loadBoards();
+        },
+        error: () => {
+          this.createError = true;
+          this.savingCreate = false;
+        },
+      });
+  }
+
   openBoardEdit(board: Board, event?: Event) {
     event?.stopPropagation();
+    this.cancelCreateBoard();
     this.editingBoard = board;
     this.boardEditTitle = board.title;
     this.boardEditDescription = board.description || '';

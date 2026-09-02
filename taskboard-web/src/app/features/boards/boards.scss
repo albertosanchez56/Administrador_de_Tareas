@@ -42,7 +42,7 @@
 .boards__canvas {
   position: relative;
   z-index: 1;
-  width: min(100%, 44rem);
+  width: min(100%, 56rem);
 }
 
 .boards__atmosphere {
@@ -97,6 +97,14 @@
       #000 100%
     );
   }
+
+  .boards__create-btn {
+    width: 100%;
+  }
+
+  .boards__stats {
+    grid-template-columns: 1fr;
+  }
 }
 
 .boards__shell {
@@ -104,21 +112,33 @@
   z-index: 1;
   width: 100%;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.35rem;
   animation: shell-up 700ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
 
 .boards__intro {
   display: grid;
-  gap: 0.5rem;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: color-mix(in srgb, white 82%, var(--paper));
+  backdrop-filter: blur(8px);
 }
 
 .boards__intro-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.5rem 1rem;
+  gap: 1rem 1.25rem;
+}
+
+.boards__intro-main {
+  display: grid;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: min(100%, 16rem);
 }
 
 .boards__headline {
@@ -130,22 +150,123 @@
   line-height: 1.15;
 }
 
-.boards__count {
-  margin: 0;
-  font-size: 0.88rem;
+.boards__create-btn {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 0.75rem 1.15rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+  color: white;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--teal) 28%, transparent);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.boards__create-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--teal) 34%, transparent);
+}
+
+.boards__create-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.boards__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.boards__stat {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, white 70%, var(--paper));
+}
+
+.boards__stat--owner {
+  border-color: color-mix(in srgb, var(--teal) 22%, transparent);
+  background: color-mix(in srgb, var(--teal) 8%, white);
+}
+
+.boards__stat--member {
+  border-color: color-mix(in srgb, var(--coral) 22%, transparent);
+  background: color-mix(in srgb, var(--coral) 8%, white);
+}
+
+.boards__stat-value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.boards__stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.boards__search {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.boards__search-label {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--ink-soft);
 }
 
-.boards__count-num {
-  color: var(--teal-deep);
-  font-weight: 750;
+.boards__search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, white 88%, var(--paper));
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.boards__search-input::placeholder {
+  color: color-mix(in srgb, var(--ink-soft) 65%, white);
+}
+
+.boards__search-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--teal) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 18%, transparent);
+}
+
+.boards__search-empty {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px dashed color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: 0.75rem;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  text-align: center;
 }
 
 .boards__lede {
   margin: 0;
-  max-width: 46ch;
-  font-size: 0.98rem;
+  max-width: 52ch;
+  font-size: 0.95rem;
   line-height: 1.55;
   color: var(--ink-soft);
 }
@@ -601,7 +722,7 @@
   }
 
   .boards__shell {
-    width: min(100%, 52rem);
+    width: min(100%, 64rem);
   }
 
   .boards__headline {
@@ -615,7 +736,7 @@
 
 @media (min-width: 1400px) {
   .boards__shell {
-    width: min(100%, 58rem);
+    width: min(100%, 72rem);
   }
 
   .boards__grid {
@@ -736,6 +857,10 @@
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-left: auto;
+}
+
+.boards__edit-actions--create {
+  justify-content: flex-end;
 }
 
 .boards__edit-delete {

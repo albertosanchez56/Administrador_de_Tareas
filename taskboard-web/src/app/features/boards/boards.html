@@ -16,32 +16,43 @@
 
         <div class="boards__intro">
           <div class="boards__intro-row">
-            <h1 class="boards__headline">Tus tableros</h1>
-            <p class="boards__count"><span class="boards__count-num">{{ boards.length }}</span> tableros</p>
+            <div class="boards__intro-main">
+              <h1 class="boards__headline">Tus tableros</h1>
+              <p class="boards__lede">
+                Organiza el trabajo por espacios. Abre uno o crea uno nuevo cuando lo necesites.
+              </p>
+            </div>
+            <button class="boards__create-btn" type="button" (click)="openCreateBoard()">
+              Crear tablero
+            </button>
           </div>
-          <p class="boards__lede">
-            Elige uno para seguir, o crea un espacio nuevo y empieza a mover el trabajo.
-          </p>
+
+          <div class="boards__stats" aria-label="Resumen de tableros">
+            <div class="boards__stat">
+              <span class="boards__stat-value">{{ boards.length }}</span>
+              <span class="boards__stat-label">Total</span>
+            </div>
+            <div class="boards__stat boards__stat--owner">
+              <span class="boards__stat-value">{{ ownedBoardsCount }}</span>
+              <span class="boards__stat-label">Propios</span>
+            </div>
+            <div class="boards__stat boards__stat--member">
+              <span class="boards__stat-value">{{ memberBoardsCount }}</span>
+              <span class="boards__stat-label">Compartidos</span>
+            </div>
+          </div>
+
+          @if (boards.length > 0) {
+          <label class="boards__search">
+            <span class="boards__search-label">Buscar tablero</span>
+            <input class="boards__search-input" type="search" name="searchQuery" placeholder="Nombre o descripción…"
+              [(ngModel)]="searchQuery" autocomplete="off" />
+          </label>
+          }
         </div>
 
-        <form class="boards__create" (ngSubmit)="onCreate()" novalidate>
-          <div class="boards__create-fields">
-            <div class="boards__field">
-              <label class="boards__label" for="board-title">Nuevo tablero</label>
-              <input class="boards__input" id="board-title" name="title" type="text" placeholder="Nombre del tablero"
-                required [(ngModel)]="title" />
-            </div>
-            <div class="boards__field boards__field--grow">
-              <label class="boards__label" for="board-description">Descripción</label>
-              <input class="boards__input" id="board-description" name="description" type="text" placeholder="Opcional"
-                [(ngModel)]="description" />
-            </div>
-            <button class="boards__submit" type="submit">Crear</button>
-          </div>
-        </form>
-
         <div class="boards__grid" role="list">
-          @for (board of boards; track board.id) {
+          @for (board of filteredBoards; track board.id) {
           <article class="boards__tile" role="listitem" tabindex="0" (click)="openBoard(board.id)"
             (keydown.enter)="openBoard(board.id)">
             <span class="boards__tile-accent boards__tile-accent--teal"></span>
@@ -70,7 +81,7 @@
           </article>
           }
 
-          <button class="boards__tile boards__tile--new" type="button" role="listitem">
+          <button class="boards__tile boards__tile--new" type="button" role="listitem" (click)="openCreateBoard()">
             <span class="boards__tile-new-mark" aria-hidden="true">+</span>
             <span class="boards__tile-body">
               <span class="boards__tile-title">Nuevo tablero</span>
@@ -78,6 +89,10 @@
             </span>
           </button>
         </div>
+
+        @if (boards.length > 0 && filteredBoards.length === 0) {
+        <p class="boards__search-empty">Ningún tablero coincide con “{{ searchQuery.trim() }}”.</p>
+        }
 
         @if (boards.length === 0) {
         <div class="boards__empty">
@@ -88,14 +103,50 @@
           </div>
           <p class="boards__empty-title">Aún no tienes tableros</p>
           <p class="boards__empty-text">
-            Crea el primero con el formulario de arriba o con la tarjeta “Nuevo tablero”.
+            Crea el primero con la tarjeta “Nuevo tablero” o el botón de abajo.
           </p>
-          <button class="boards__empty-cta" type="button">Crear el primero</button>
+          <button class="boards__empty-cta" type="button" (click)="openCreateBoard()">Crear el primero</button>
         </div>
         }
       </div>
     </div>
   </div>
+
+  @if (creatingBoard) {
+  <div class="boards__modal" role="dialog" aria-modal="true" aria-labelledby="boards-create-dialog-title">
+    <button class="boards__modal-backdrop" type="button" (click)="cancelCreateBoard()"
+      aria-label="Cerrar diálogo"></button>
+    <form class="boards__edit" (ngSubmit)="saveCreateBoard()" novalidate>
+      <div class="boards__edit-head">
+        <h2 class="boards__edit-title" id="boards-create-dialog-title">Nuevo tablero</h2>
+        <button class="boards__edit-close" type="button" (click)="cancelCreateBoard()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+      <div class="boards__edit-fields">
+        <div class="boards__field">
+          <label class="boards__label" for="boards-create-title">Título</label>
+          <input class="boards__input" id="boards-create-title" name="createTitle" type="text" required
+            placeholder="Nombre del tablero" [(ngModel)]="createTitle" />
+        </div>
+        <div class="boards__field">
+          <label class="boards__label" for="boards-create-description">Descripción</label>
+          <textarea class="boards__input boards__textarea" id="boards-create-description" name="createDescription"
+            rows="3" placeholder="Opcional" [(ngModel)]="createDescription"></textarea>
+        </div>
+      </div>
+      @if (createError) {
+      <p class="boards__edit-error" role="alert">No se pudo crear el tablero.</p>
+      }
+      <div class="boards__edit-actions boards__edit-actions--create">
+        <button class="boards__edit-cancel" type="button" (click)="cancelCreateBoard()">Cancelar</button>
+        <button class="boards__submit" type="submit" [disabled]="savingCreate || !createTitle.trim()">
+          {{ savingCreate ? 'Creando…' : 'Crear tablero' }}
+        </button>
+      </div>
+    </form>
+  </div>
+  }
 
   @if (editingBoard) {
   <div class="boards__modal" role="dialog" aria-modal="true" aria-labelledby="boards-edit-dialog-title">

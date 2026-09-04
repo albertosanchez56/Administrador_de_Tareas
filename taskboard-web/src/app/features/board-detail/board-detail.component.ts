@@ -15,6 +15,7 @@ import { Task, TaskService, TaskStatus } from '../../core/tasks/task.service';
 import { BoardMember, BoardService } from '../../core/boards/board.service';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../core/auth/auth.service';
+import { getApiErrorMessage } from '../../core/http/api-error';
 
 @Component({
   selector: 'app-board-detail',
@@ -63,7 +64,7 @@ export class BoardDetailComponent {
 
   inviteEmail = '';
   inviting = false;
-  inviteError = false;
+  inviteErrorMessage = '';
   selectedMemberId: number | null = null;
   removingMember = false;
 
@@ -328,15 +329,18 @@ export class BoardDetailComponent {
       return;
     }
     this.inviting = true;
-    this.inviteError = false;
+    this.inviteErrorMessage = '';
     this.boardApi.inviteMember(this.boardId, this.inviteEmail.trim()).subscribe({
       next: () => {
         this.inviteEmail = '';
         this.loadMembers();
         this.inviting = false;
       },
-      error: () => {
-        this.inviteError = true;
+      error: (err) => {
+        this.inviteErrorMessage = getApiErrorMessage(
+          err,
+          'No se pudo invitar al usuario.'
+        );
         this.inviting = false;
       },
     });

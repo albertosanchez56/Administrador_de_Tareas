@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { getApiErrorMessage } from '../../core/http/api-error';
 
 @Component({
   selector: 'app-register',
@@ -18,19 +19,22 @@ export class Register {
   password = '';
   confirmPassword = '';
 
-  error = false;
+  errorMessage: string = '';
   loading = false;
 
   onSubmit() {
-    this.error = false;
+    this.errorMessage = '';
 
-    if (
-      !this.username.trim() ||
-      !this.email.trim() ||
-      this.password.length < 8 ||
-      this.password !== this.confirmPassword
-    ) {
-      this.error = true;
+    if (!this.username.trim() || !this.email.trim()) {
+      this.errorMessage = 'Completa todos los campos.';
+      return;
+    }
+    if (this.password.length < 8) {
+      this.errorMessage = 'La contraseña debe tener al menos 8 caracteres.';
+      return;
+    }
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden.';
       return;
     }
 
@@ -40,10 +44,13 @@ export class Register {
         this.loading = false;
         this.router.navigate(['/login']);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error = true;
-      },
+        this.errorMessage = getApiErrorMessage(
+          err,
+          'No hemos podido crear la cuenta. Inténtalo de nuevo.'
+        );
+      }
     });
   }
 }

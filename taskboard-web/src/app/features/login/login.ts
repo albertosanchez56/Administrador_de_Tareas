@@ -2,6 +2,7 @@ import { Component, inject} from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { getApiErrorMessage } from '../../core/http/api-error';
 
 @Component({
   selector: 'app-login',
@@ -16,21 +17,24 @@ export class Login {
 
   username: string = '';
   password: string = '';
-  error: boolean = false;
+  errorMessage: string = '';
   loading: boolean = false;
 
   onSubmit() {
-    this.error = false;
+    this.errorMessage = '';
     this.loading = true;
     this.auth.login(this.username, this.password).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/boards']);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error = true;
-      }
+        this.errorMessage = getApiErrorMessage(
+          err,
+          'No hemos podido entrar. Revisa usuario y contraseña.'
+        );
+      },
     });
   }
 }

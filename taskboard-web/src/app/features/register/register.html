@@ -130,9 +130,9 @@
             />
           </div>
 
-          @if (error) {
+          @if (errorMessage) {
             <p class="login__error" role="alert">
-              No hemos podido crear la cuenta. Revisa los datos (contraseña de 8+ caracteres) o si el usuario/email ya existe.
+              {{ errorMessage }}
             </p>
           }
 

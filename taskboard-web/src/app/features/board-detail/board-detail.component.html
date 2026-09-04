@@ -54,10 +54,10 @@
               {{ inviting ? '…' : 'Invitar' }}
             </button>
           </div>
-          @if (inviteError) {
-          <p class="board__invite-error" role="alert">
-            No se pudo invitar. Revisa el email o si ya es miembro.
-          </p>
+          @if (inviteErrorMessage) {
+            <p class="board__invite-error" role="alert">
+              {{ inviteErrorMessage }}
+            </p>
           }
         </form>
         }

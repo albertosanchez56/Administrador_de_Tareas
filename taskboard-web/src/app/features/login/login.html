@@ -102,10 +102,9 @@
             />
           </div>
 
-          <!-- Muestra este bloque cuando falle el login: *ngIf / @if (error) -->
-          @if (error) {
+          @if (errorMessage) {
             <p class="login__error" role="alert">
-              No hemos podido entrar. Revisa usuario y contraseña.
+              {{ errorMessage }}
             </p>
           }
 

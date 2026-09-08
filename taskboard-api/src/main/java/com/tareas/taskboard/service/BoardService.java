@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
+import com.tareas.taskboard.dto.InvitationResponse;
 import com.tareas.taskboard.dto.InviteMemberRequest;
 import com.tareas.taskboard.dto.UpdateBoardRequest;
 import com.tareas.taskboard.entity.Board;
@@ -20,10 +21,12 @@ import com.tareas.taskboard.exception.BoardNotFoundException;
 import com.tareas.taskboard.exception.MemberAlreadyExistsException;
 import com.tareas.taskboard.exception.MemberNotFoundException;
 import com.tareas.taskboard.exception.UserNotFoundException;
+import com.tareas.taskboard.repository.BoardInvitationRepository;
 import com.tareas.taskboard.repository.BoardMemberRepository;
 import com.tareas.taskboard.repository.BoardRepository;
 import com.tareas.taskboard.repository.TaskRepository;
 import com.tareas.taskboard.repository.UserRepository;
+import com.tareas.taskboard.entity.BoardInvitation;
 
 import jakarta.transaction.Transactional;
 
@@ -33,13 +36,16 @@ public class BoardService {
     private final UserRepository userRepository;
     private final BoardMemberRepository boardMemberRepository;
     private final TaskRepository taskRepository;
+    private final BoardInvitationRepository boardInvitationRepository;
 
     public BoardService(BoardRepository boardRepository, UserRepository userRepository,
-            BoardMemberRepository boardMemberRepository, TaskRepository taskRepository) {
+            BoardMemberRepository boardMemberRepository, TaskRepository taskRepository,
+            BoardInvitationRepository boardInvitationRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.boardMemberRepository = boardMemberRepository;
         this.taskRepository = taskRepository;
+        this.boardInvitationRepository = boardInvitationRepository;
     }
 
     // Crea un board nuevo. El ownerUserId viene del JWT (SecurityContext en el
@@ -82,7 +88,7 @@ public class BoardService {
     // Añade un miembro al board. Solo el owner puede invitar; requesterUserId viene
     // del JWT.
     @Transactional // necesario por relaciones LAZY al mapear BoardMemberResponse
-    public BoardMemberResponse addMember(Long boardId, InviteMemberRequest request, Long requesterUserId) {
+    public InvitationResponse inviteMember(Long boardId, InviteMemberRequest request, Long requesterUserId) {
         // Compruebo que el board existe.
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardNotFoundException("Board not found"));
@@ -102,10 +108,22 @@ public class BoardService {
             throw new MemberAlreadyExistsException("User already a member of this board");
         }
 
-        BoardMembers boardMember = new BoardMembers(board, invitedUser, Role.MEMBER);
-        BoardMembers saved = boardMemberRepository.save(boardMember);
+        // No puedes invitarte a ti mismo
+        if (invitedUser.getId().equals(requesterUserId)) {
+            throw new AccessDeniedException("You cannot invite yourself");
+        }
 
-        return BoardMemberResponse.from(saved);
+        // Ya hay una invitación PENDING para este usuario en este tablero
+        if (boardInvitationRepository.existsByBoardAndInviteeAndStatus(
+                board, invitedUser, BoardInvitation.Status.PENDING)) {
+            throw new MemberAlreadyExistsException("Invitation already pending for this user");
+        }
+
+        User owner = board.getOwner();
+        BoardInvitation invitation = new BoardInvitation(board, invitedUser, owner);
+        BoardInvitation saved = boardInvitationRepository.save(invitation);
+
+        return InvitationResponse.from(saved);
     }
 
     @Transactional

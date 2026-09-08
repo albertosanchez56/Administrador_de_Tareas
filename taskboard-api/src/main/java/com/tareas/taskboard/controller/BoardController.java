@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tareas.taskboard.dto.BoardMemberResponse;
 import com.tareas.taskboard.dto.BoardResponse;
 import com.tareas.taskboard.dto.CreateBoardRequest;
+import com.tareas.taskboard.dto.InvitationResponse;
 import com.tareas.taskboard.dto.InviteMemberRequest;
 import com.tareas.taskboard.dto.UpdateBoardRequest;
 import com.tareas.taskboard.service.BoardService;
@@ -57,9 +58,9 @@ public class BoardController {
     }
 
     @PostMapping("/{boardId}/members")
-    public ResponseEntity<BoardMemberResponse> addBoardMember(@PathVariable Long boardId,
+    public ResponseEntity<InvitationResponse> addBoardMember(@PathVariable Long boardId,
             @Valid @RequestBody InviteMemberRequest request) {
-        BoardMemberResponse response = boardService.addMember(boardId, request, getAuthenticatedUserId());
+        InvitationResponse response = boardService.inviteMember(boardId, request, getAuthenticatedUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -69,4 +69,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleMemberNotFoundException(MemberNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }
+
+    @ExceptionHandler(InvitationNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleInvitationNotFoundException(InvitationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    }
 }

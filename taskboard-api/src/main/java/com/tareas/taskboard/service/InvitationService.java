@@ -80,7 +80,7 @@ public class InvitationService {
                 .orElseThrow(() -> new InvitationNotFoundException("Invitation not found"));
 
         if (!invitation.getInvitee().getId().equals(userId)) {
-            throw new AccessDeniedException("You are not allowed to accept this invitation");
+            throw new AccessDeniedException("You are not allowed to reject this invitation");
         }
 
         if (invitation.getStatus() != BoardInvitation.Status.PENDING) {

@@ -5,6 +5,8 @@ import { PageHeader } from '../../shared/page-header/page-header';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { DatePipe } from '@angular/common';
+import { Invitation, InvitationService } from '../../core/invitations/invitation.service';
+import { getApiErrorMessage } from '../../core/http/api-error';
 
 @Component({
   selector: 'app-boards',
@@ -15,12 +17,18 @@ import { DatePipe } from '@angular/common';
 export class Boards {
 
   private readonly boardService = inject(BoardService);
+  private readonly invitationService = inject(InvitationService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
 
   boards: Board[] = [];
   loading = false;
   error = false;
+
+  invitations: Invitation[] = [];
+  invitationsLoading = false;
+  invitationsErrorMessage = '';
+  actingInvitationId: number | null = null;
 
   creatingBoard = false;
   createTitle = '';
@@ -38,6 +46,7 @@ export class Boards {
 
   constructor() {
     this.loadBoards();
+    this.loadInvitations();
   }
 
   loadBoards() {
@@ -47,6 +56,68 @@ export class Boards {
       },
       error: () => {
         this.error = true;
+      },
+    });
+  }
+
+  loadInvitations() {
+    this.invitationsLoading = true;
+    this.invitationsErrorMessage = '';
+    this.invitationService.listPending().subscribe({
+      next: (invitations) => {
+        this.invitations = invitations;
+        this.invitationsLoading = false;
+      },
+      error: (err) => {
+        this.invitationsLoading = false;
+        this.invitationsErrorMessage = getApiErrorMessage(
+          err,
+          'No se pudieron cargar las invitaciones.',
+        );
+      },
+    });
+  }
+
+  acceptInvitation(invitation: Invitation) {
+    if (this.actingInvitationId != null) {
+      return;
+    }
+    this.actingInvitationId = invitation.id;
+    this.invitationsErrorMessage = '';
+    this.invitationService.accept(invitation.id).subscribe({
+      next: () => {
+        this.invitations = this.invitations.filter((i) => i.id !== invitation.id);
+        this.actingInvitationId = null;
+        this.loadBoards();
+        this.openBoard(invitation.boardId);
+      },
+      error: (err) => {
+        this.actingInvitationId = null;
+        this.invitationsErrorMessage = getApiErrorMessage(
+          err,
+          'No se pudo aceptar la invitación.',
+        );
+      },
+    });
+  }
+
+  rejectInvitation(invitation: Invitation) {
+    if (this.actingInvitationId != null) {
+      return;
+    }
+    this.actingInvitationId = invitation.id;
+    this.invitationsErrorMessage = '';
+    this.invitationService.reject(invitation.id).subscribe({
+      next: () => {
+        this.invitations = this.invitations.filter((i) => i.id !== invitation.id);
+        this.actingInvitationId = null;
+      },
+      error: (err) => {
+        this.actingInvitationId = null;
+        this.invitationsErrorMessage = getApiErrorMessage(
+          err,
+          'No se pudo rechazar la invitación.',
+        );
       },
     });
   }

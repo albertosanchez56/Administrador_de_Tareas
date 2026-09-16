@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Invitation } from '../invitations/invitation.service';
 
 export interface Board {
   id: number;
@@ -41,7 +42,7 @@ export class BoardService {
   } 
 
   inviteMember(boardId: number | string, email: string) {
-    return this.http.post<BoardMember>(`/api/boards/${boardId}/members`, { email });
+    return this.http.post<Invitation>(`/api/boards/${boardId}/members`, { email });
   }
 
   removeMember(boardId: number | string, userId: number) {

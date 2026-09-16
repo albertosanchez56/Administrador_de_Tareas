@@ -65,6 +65,7 @@ export class BoardDetailComponent {
   inviteEmail = '';
   inviting = false;
   inviteErrorMessage = '';
+  inviteSuccessMessage = '';
   selectedMemberId: number | null = null;
   removingMember = false;
 
@@ -330,10 +331,11 @@ export class BoardDetailComponent {
     }
     this.inviting = true;
     this.inviteErrorMessage = '';
+    this.inviteSuccessMessage = '';
     this.boardApi.inviteMember(this.boardId, this.inviteEmail.trim()).subscribe({
       next: () => {
         this.inviteEmail = '';
-        this.loadMembers();
+        this.inviteSuccessMessage = 'Invitación enviada. Aparecerá cuando la acepte.';
         this.inviting = false;
       },
       error: (err) => {

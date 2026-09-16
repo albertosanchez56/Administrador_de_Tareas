@@ -241,6 +241,12 @@
   cursor: not-allowed;
 }
 
+.board__invite-success {
+  margin: 0.55rem 0 0;
+  font-size: 0.85rem;
+  color: var(--teal, #0f6b5c);
+}
+
 .board__invite-error {
   margin: 0.15rem 0 0;
   font-size: 0.78rem;

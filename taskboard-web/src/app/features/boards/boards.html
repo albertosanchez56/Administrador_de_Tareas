@@ -51,6 +51,60 @@
           }
         </div>
 
+        @if (invitationsLoading || invitations.length > 0 || invitationsErrorMessage) {
+        <section class="boards__invites" aria-label="Invitaciones pendientes">
+          <header class="boards__invites-head">
+            <h2 class="boards__invites-title">Invitaciones pendientes</h2>
+            @if (invitations.length > 0) {
+            <span class="boards__invites-count">{{ invitations.length }}</span>
+            }
+          </header>
+
+          @if (invitationsLoading) {
+          <p class="boards__invites-loading">Cargando invitaciones…</p>
+          }
+
+          @if (invitationsErrorMessage) {
+          <p class="boards__invites-error" role="alert">{{ invitationsErrorMessage }}</p>
+          }
+
+          @if (!invitationsLoading && invitations.length > 0) {
+          <ul class="boards__invites-list">
+            @for (inv of invitations; track inv.id) {
+            <li class="boards__invite">
+              <div class="boards__invite-body">
+                <p class="boards__invite-text">
+                  <strong>{{ inv.invitedByUsername }}</strong>
+                  te invitó a
+                  <strong>{{ inv.boardTitle }}</strong>
+                </p>
+                <p class="boards__invite-meta">{{ inv.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+              <div class="boards__invite-actions">
+                <button
+                  class="boards__invite-reject"
+                  type="button"
+                  [disabled]="actingInvitationId != null"
+                  (click)="rejectInvitation(inv)"
+                >
+                  {{ actingInvitationId === inv.id ? '…' : 'Rechazar' }}
+                </button>
+                <button
+                  class="boards__invite-accept"
+                  type="button"
+                  [disabled]="actingInvitationId != null"
+                  (click)="acceptInvitation(inv)"
+                >
+                  {{ actingInvitationId === inv.id ? '…' : 'Aceptar' }}
+                </button>
+              </div>
+            </li>
+            }
+          </ul>
+          }
+        </section>
+        }
+
         <div class="boards__grid" role="list">
           @for (board of filteredBoards; track board.id) {
           <article class="boards__tile" role="listitem" tabindex="0" (click)="openBoard(board.id)"

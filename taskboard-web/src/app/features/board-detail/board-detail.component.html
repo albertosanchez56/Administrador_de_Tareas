@@ -59,6 +59,11 @@
               {{ inviteErrorMessage }}
             </p>
           }
+          @if (inviteSuccessMessage) {
+            <p class="board__invite-success" role="status">
+              {{ inviteSuccessMessage }}
+            </p>
+          }
         </form>
         }
 

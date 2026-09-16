@@ -45,6 +45,10 @@ export class BoardService {
     return this.http.post<Invitation>(`/api/boards/${boardId}/members`, { email });
   }
 
+  getBoardInvitations(boardId: number | string) {
+    return this.http.get<Invitation[]>(`/api/boards/${boardId}/invitations`);
+  }
+
   removeMember(boardId: number | string, userId: number) {
     return this.http.delete<void>(`/api/boards/${boardId}/members/${userId}`);
   }

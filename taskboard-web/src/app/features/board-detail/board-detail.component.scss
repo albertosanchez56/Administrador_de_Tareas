@@ -254,6 +254,102 @@
   color: #8a3d28;
 }
 
+.board__members-toggle-pending {
+  margin-left: 0.15rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--coral, #d97757) 88%, black);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.board__pending {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--coral, #d97757) 24%, transparent);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--coral, #d97757) 8%, white);
+}
+
+.board__pending-title,
+.board__members-section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.board__members-section-title {
+  margin-top: 0.25rem;
+  color: var(--ink-soft);
+}
+
+.board__pending-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.board__pending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, white 92%, var(--paper, #f3efe6));
+}
+
+.board__pending-info {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.board__pending-name {
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board__pending-meta {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.board__pending-cancel {
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.board__pending-cancel:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+.board__pending-cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .board__members-title {
   margin: 0;
   font-family: var(--font-display);

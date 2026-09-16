@@ -16,6 +16,7 @@ import { BoardMember, BoardService } from '../../core/boards/board.service';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../core/auth/auth.service';
 import { getApiErrorMessage } from '../../core/http/api-error';
+import { Invitation, InvitationService } from '../../core/invitations/invitation.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -36,6 +37,7 @@ export class BoardDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly tasksApi = inject(TaskService);
   private readonly boardApi = inject(BoardService);
+  private readonly invitationApi = inject(InvitationService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -59,6 +61,8 @@ export class BoardDetailComponent {
   private dragging = false;
 
   members: BoardMember[] = [];
+  pendingInvitations: Invitation[] = [];
+  cancellingInvitationId: number | null = null;
   editAssignedToUserId: number | null = null;
   membersOpen = false;
 
@@ -116,6 +120,11 @@ export class BoardDetailComponent {
         this.boardTitle = board.title;
         this.boardOwnerUserId = board.ownerUserId;
         this.boardDescription = board.description ?? '';
+        if (this.isBoardOwner) {
+          this.loadPendingInvitations();
+        } else {
+          this.pendingInvitations = [];
+        }
       },
       error: () => {
         this.error = true;
@@ -127,6 +136,49 @@ export class BoardDetailComponent {
     this.boardApi.getMembers(this.boardId).subscribe({
       next: (members) => (this.members = members),
       error: () => (this.error = true),
+    });
+  }
+
+  loadPendingInvitations() {
+    if (!this.isBoardOwner) {
+      this.pendingInvitations = [];
+      return;
+    }
+    this.boardApi.getBoardInvitations(this.boardId).subscribe({
+      next: (invitations) => {
+        this.pendingInvitations = invitations;
+      },
+      error: () => {
+        this.pendingInvitations = [];
+      },
+    });
+  }
+
+  cancelPendingInvitation(invitation: Invitation) {
+    if (this.cancellingInvitationId != null) {
+      return;
+    }
+    const ok = confirm(
+      `¿Cancelar la invitación a ${invitation.inviteeUsername}?`,
+    );
+    if (!ok) {
+      return;
+    }
+    this.cancellingInvitationId = invitation.id;
+    this.invitationApi.cancel(invitation.id).subscribe({
+      next: () => {
+        this.pendingInvitations = this.pendingInvitations.filter(
+          (i) => i.id !== invitation.id,
+        );
+        this.cancellingInvitationId = null;
+      },
+      error: (err) => {
+        this.cancellingInvitationId = null;
+        this.inviteErrorMessage = getApiErrorMessage(
+          err,
+          'No se pudo cancelar la invitación.',
+        );
+      },
     });
   }
 
@@ -337,12 +389,14 @@ export class BoardDetailComponent {
         this.inviteEmail = '';
         this.inviteSuccessMessage = 'Invitación enviada. Aparecerá cuando la acepte.';
         this.inviting = false;
+        this.loadPendingInvitations();
       },
       error: (err) => {
-        this.inviteErrorMessage = getApiErrorMessage(
-          err,
-          'No se pudo invitar al usuario.'
-        );
+        const fallback =
+          err?.status === 409
+            ? 'Ese usuario ya es miembro o ya tiene una invitación pendiente.'
+            : 'No se pudo invitar al usuario.';
+        this.inviteErrorMessage = getApiErrorMessage(err, fallback);
         this.inviting = false;
       },
     });

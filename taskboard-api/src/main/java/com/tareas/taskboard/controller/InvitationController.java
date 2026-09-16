@@ -42,6 +42,12 @@ public class InvitationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{invitationId}/cancel")
+    public ResponseEntity<InvitationResponse> cancel(@PathVariable Long invitationId) {
+        InvitationResponse response = invitationService.cancel(invitationId, getAuthenticatedUserId());
+        return ResponseEntity.ok(response);
+    }
+
     private Long getAuthenticatedUserId() {
         return Long.valueOf(
                 SecurityContextHolder.getContext().getAuthentication().getName());

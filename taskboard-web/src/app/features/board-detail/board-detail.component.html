@@ -29,6 +29,9 @@
             aria-controls="board-members-panel" (click)="toggleMembers()">
             <span class="board__members-toggle-label">Miembros</span>
             <span class="board__members-toggle-count">{{ members.length }}</span>
+            @if (isBoardOwner && pendingInvitations.length > 0) {
+            <span class="board__members-toggle-pending">{{ pendingInvitations.length }} pend.</span>
+            }
             <span class="board__members-toggle-chevron" [class.board__members-toggle-chevron--open]="membersOpen"
               aria-hidden="true">▾</span>
           </button>
@@ -67,6 +70,31 @@
         </form>
         }
 
+        @if (isBoardOwner && pendingInvitations.length > 0) {
+        <section class="board__pending" aria-label="Invitaciones pendientes">
+          <h3 class="board__pending-title">Pendientes de aceptar</h3>
+          <ul class="board__pending-list">
+            @for (inv of pendingInvitations; track inv.id) {
+            <li class="board__pending-item">
+              <div class="board__pending-info">
+                <span class="board__pending-name">{{ inv.inviteeUsername }}</span>
+                <span class="board__pending-meta">{{ inv.createdAt | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <button
+                class="board__pending-cancel"
+                type="button"
+                [disabled]="cancellingInvitationId != null"
+                (click)="cancelPendingInvitation(inv)"
+              >
+                {{ cancellingInvitationId === inv.id ? '…' : 'Cancelar' }}
+              </button>
+            </li>
+            }
+          </ul>
+        </section>
+        }
+
+        <h3 class="board__members-section-title">En el tablero</h3>
         <ul class="board__members-list">
           @for (m of members; track m.userId) {
           <li class="board__members-item" [class.board__members-item--open]="selectedMemberId === m.userId">

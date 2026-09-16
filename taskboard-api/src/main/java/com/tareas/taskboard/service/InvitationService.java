@@ -5,15 +5,18 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.tareas.taskboard.dto.InvitationResponse;
-import com.tareas.taskboard.entity.User;
+import com.tareas.taskboard.entity.Board;
 import com.tareas.taskboard.entity.BoardInvitation;
 import com.tareas.taskboard.entity.BoardMembers;
+import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.exception.AccessDeniedException;
+import com.tareas.taskboard.exception.BoardNotFoundException;
 import com.tareas.taskboard.exception.InvitationNotFoundException;
 import com.tareas.taskboard.exception.MemberAlreadyExistsException;
 import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.repository.BoardInvitationRepository;
 import com.tareas.taskboard.repository.BoardMemberRepository;
+import com.tareas.taskboard.repository.BoardRepository;
 import com.tareas.taskboard.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -24,12 +27,17 @@ public class InvitationService {
     private final BoardInvitationRepository boardInvitationRepository;
     private final UserRepository userRepository;
     private final BoardMemberRepository boardMemberRepository;
+    private final BoardRepository boardRepository;
 
-    public InvitationService(BoardInvitationRepository boardInvitationRepository, UserRepository userRepository,
-            BoardMemberRepository boardMemberRepository) {
+    public InvitationService(
+            BoardInvitationRepository boardInvitationRepository,
+            UserRepository userRepository,
+            BoardMemberRepository boardMemberRepository,
+            BoardRepository boardRepository) {
         this.boardInvitationRepository = boardInvitationRepository;
         this.userRepository = userRepository;
         this.boardMemberRepository = boardMemberRepository;
+        this.boardRepository = boardRepository;
     }
 
     @Transactional
@@ -40,7 +48,20 @@ public class InvitationService {
                 BoardInvitation.Status.PENDING);
 
         return invitations.stream().map(InvitationResponse::from).toList();
+    }
 
+    @Transactional
+    public List<InvitationResponse> listPendingForBoard(Long boardId, Long requesterUserId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+
+        if (!board.getOwner().getId().equals(requesterUserId)) {
+            throw new AccessDeniedException("You are not allowed to view invitations for this board");
+        }
+
+        return boardInvitationRepository.findByBoardAndStatus(board, BoardInvitation.Status.PENDING).stream()
+                .map(InvitationResponse::from)
+                .toList();
     }
 
     @Transactional
@@ -71,7 +92,6 @@ public class InvitationService {
         boardInvitationRepository.save(invitation);
 
         return InvitationResponse.from(invitation);
-
     }
 
     @Transactional
@@ -81,6 +101,25 @@ public class InvitationService {
 
         if (!invitation.getInvitee().getId().equals(userId)) {
             throw new AccessDeniedException("You are not allowed to reject this invitation");
+        }
+
+        if (invitation.getStatus() != BoardInvitation.Status.PENDING) {
+            throw new MemberAlreadyExistsException("Invitation is not pending");
+        }
+
+        invitation.setStatus(BoardInvitation.Status.REJECTED);
+        boardInvitationRepository.save(invitation);
+
+        return InvitationResponse.from(invitation);
+    }
+
+    @Transactional
+    public InvitationResponse cancel(Long invitationId, Long requesterUserId) {
+        BoardInvitation invitation = boardInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new InvitationNotFoundException("Invitation not found"));
+
+        if (!invitation.getBoard().getOwner().getId().equals(requesterUserId)) {
+            throw new AccessDeniedException("You are not allowed to cancel this invitation");
         }
 
         if (invitation.getStatus() != BoardInvitation.Status.PENDING) {

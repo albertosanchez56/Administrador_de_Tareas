@@ -27,8 +27,12 @@ export class InvitationService {
         return this.http.post<Invitation>(`/api/invitations/${invitationId}/accept`, {});
     }
 
-    reject(invitationId: number) {
-        return this.http.post<Invitation>(`/api/invitations/${invitationId}/reject`, {});
-    }
+  reject(invitationId: number) {
+    return this.http.post<Invitation>(`/api/invitations/${invitationId}/reject`, {});
+  }
+
+  cancel(invitationId: number) {
+    return this.http.post<Invitation>(`/api/invitations/${invitationId}/cancel`, {});
+  }
 
 }

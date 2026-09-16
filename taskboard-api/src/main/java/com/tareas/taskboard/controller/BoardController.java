@@ -21,6 +21,7 @@ import com.tareas.taskboard.dto.InvitationResponse;
 import com.tareas.taskboard.dto.InviteMemberRequest;
 import com.tareas.taskboard.dto.UpdateBoardRequest;
 import com.tareas.taskboard.service.BoardService;
+import com.tareas.taskboard.service.InvitationService;
 
 import jakarta.validation.Valid;
 
@@ -29,9 +30,11 @@ import jakarta.validation.Valid;
 public class BoardController {
 
     private final BoardService boardService;
+    private final InvitationService invitationService;
 
-    public BoardController(BoardService boardService) {
+    public BoardController(BoardService boardService, InvitationService invitationService) {
         this.boardService = boardService;
+        this.invitationService = invitationService;
     }
 
     @PostMapping
@@ -62,6 +65,12 @@ public class BoardController {
             @Valid @RequestBody InviteMemberRequest request) {
         InvitationResponse response = boardService.inviteMember(boardId, request, getAuthenticatedUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{boardId}/invitations")
+    public ResponseEntity<List<InvitationResponse>> getBoardInvitations(@PathVariable Long boardId) {
+        List<InvitationResponse> response = invitationService.listPendingForBoard(boardId, getAuthenticatedUserId());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{boardId}/members/{memberId}")

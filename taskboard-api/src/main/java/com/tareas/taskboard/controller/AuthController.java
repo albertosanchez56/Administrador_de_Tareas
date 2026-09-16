@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tareas.taskboard.dto.LoginRequest;
 import com.tareas.taskboard.dto.LoginResponse;
+import com.tareas.taskboard.dto.RefreshRequest;
 import com.tareas.taskboard.dto.RegisterRequest;
 import com.tareas.taskboard.dto.UserResponse;
 import com.tareas.taskboard.service.AuthService;
@@ -46,5 +47,10 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> me() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(Map.of("userId", auth.getName()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.refresh(request.refreshToken()));
     }
 }

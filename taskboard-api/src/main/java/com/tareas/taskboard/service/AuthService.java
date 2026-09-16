@@ -9,6 +9,8 @@ import com.tareas.taskboard.dto.LoginResponse;
 import com.tareas.taskboard.repository.UserRepository;
 import com.tareas.taskboard.security.JwtService;
 
+import jakarta.transaction.Transactional;
+
 import com.tareas.taskboard.entity.User;
 
 @Service
@@ -19,7 +21,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenService refreshTokenService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
+            RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -38,6 +41,14 @@ public class AuthService {
         String refreshToken = refreshTokenService.createRefreshToken(user, null, null);
 
         return LoginResponse.fromUser(user, accessToken, refreshToken);
-        
+
+    }
+
+    @Transactional
+    public LoginResponse refresh(String rawRefreshToken) {
+        RefreshTokenService.RotatedRefresh rotated = refreshTokenService.rotate(rawRefreshToken);
+
+        String accessToken = jwtService.generateAccessToken(rotated.user());
+        return LoginResponse.fromUser(rotated.user(), accessToken, rotated.rawRefreshToken());
     }
 }

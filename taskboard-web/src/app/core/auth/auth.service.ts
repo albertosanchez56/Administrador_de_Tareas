@@ -7,6 +7,7 @@ export interface LoginResponse {
     userId: number;
     username: string;
     role: string;
+    refreshToken: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,7 @@ export class AuthService {
         return this.http.post<LoginResponse>('/api/auth/login', { username, password }).pipe(
             tap(response => {
                 localStorage.setItem(this.tokenKey, response.accessToken);
+                localStorage.setItem('refreshToken', response.refreshToken);
                 localStorage.setItem('userId', String(response.userId));
             })
         );
@@ -29,15 +31,17 @@ export class AuthService {
     }
 
     isLoggedIn(): boolean {
-        return this.isTokenValid();
+        return this.isTokenValid() || !!this.getRefreshToken();
     }
 
     logout(): void {
         localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('userId');
     }
 
     getUserId(): number | null {
+
         const raw = localStorage.getItem('userId');
         return raw ? Number(raw) : null;
     }
@@ -77,5 +81,20 @@ export class AuthService {
             // Token mal formado o no se puede parsear -> lo trato como inválido.
             return false;
         }
+    }
+
+    refresh() {
+        return this.http.post<LoginResponse>('/api/auth/refresh', {
+            refreshToken: this.getRefreshToken(),
+        }).pipe(
+            tap(res => {
+                localStorage.setItem(this.tokenKey, res.accessToken);
+                localStorage.setItem('refreshToken', res.refreshToken);
+            })
+        );
+    }
+
+    getRefreshToken(): string | null {
+        return localStorage.getItem('refreshToken');
     }
 }

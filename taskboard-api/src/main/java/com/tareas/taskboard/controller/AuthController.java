@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tareas.taskboard.dto.ChangePasswordRequest;
 import com.tareas.taskboard.dto.LoginRequest;
 import com.tareas.taskboard.dto.LoginResponse;
 import com.tareas.taskboard.dto.RefreshRequest;
@@ -56,5 +57,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request.refreshToken()));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(getAuthenticatedUserId(), request);
+        return ResponseEntity.noContent().build();
     }
 }

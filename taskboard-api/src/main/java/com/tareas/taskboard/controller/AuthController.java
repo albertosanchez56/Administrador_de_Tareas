@@ -44,9 +44,13 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, String>> me() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok(Map.of("userId", auth.getName()));
+    public ResponseEntity<UserResponse> me() {
+        return ResponseEntity.ok(userService.getMe(getAuthenticatedUserId()));
+    }
+
+    private Long getAuthenticatedUserId() {
+        return Long.valueOf(
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @PostMapping("/refresh")

@@ -8,6 +8,7 @@ import com.tareas.taskboard.dto.UserResponse;
 import com.tareas.taskboard.entity.User;
 import com.tareas.taskboard.exception.DuplicateEmailException;
 import com.tareas.taskboard.exception.DuplicateUsernameException;
+import com.tareas.taskboard.exception.UserNotFoundException;
 import com.tareas.taskboard.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -46,5 +47,11 @@ public class UserService {
         User saved = userRepository.save(user);
 
         return UserResponse.from(saved);
+    }
+
+    public UserResponse getMe(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
+        return UserResponse.from(user);
     }
 }

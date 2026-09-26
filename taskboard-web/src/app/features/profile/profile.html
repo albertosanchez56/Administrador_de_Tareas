@@ -1,1 +1,126 @@
-<p>profile works!</p>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<section class="profile">
+  <div class="profile__atmosphere" aria-hidden="true">
+    <div class="profile__dots"></div>
+  </div>
+
+  <div class="profile__frame">
+    <div class="profile__canvas">
+      <div class="profile__shell">
+        <app-page-header tagline="Tu cuenta" />
+
+        <a class="profile__back" routerLink="/boards">← Volver a tableros</a>
+
+        <header class="profile__intro">
+          <h1 class="profile__headline">Perfil</h1>
+          <p class="profile__lede">
+            Consulta tus datos y cambia la contraseña cuando lo necesites.
+          </p>
+        </header>
+
+        @if (loading) {
+        <p class="profile__status">Cargando perfil…</p>
+        }
+
+        @if (errorMessage) {
+        <p class="profile__alert profile__alert--error" role="alert">{{ errorMessage }}</p>
+        }
+
+        @if (profile) {
+        <section class="profile__card" aria-label="Datos de la cuenta">
+          <h2 class="profile__card-title">Tu información</h2>
+          <dl class="profile__meta">
+            <div class="profile__meta-row">
+              <dt>Usuario</dt>
+              <dd>{{ profile.username }}</dd>
+            </div>
+            <div class="profile__meta-row">
+              <dt>Email</dt>
+              <dd>{{ profile.email }}</dd>
+            </div>
+            <div class="profile__meta-row">
+              <dt>Rol</dt>
+              <dd>{{ profile.role }}</dd>
+            </div>
+            <div class="profile__meta-row">
+              <dt>Alta</dt>
+              <dd>{{ profile.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="profile__card" aria-label="Cambiar contraseña">
+          <h2 class="profile__card-title">Cambiar contraseña</h2>
+          <form class="profile__form" (ngSubmit)="onChangePassword()" novalidate>
+            <div class="profile__field">
+              <label class="profile__label" for="current-password">Contraseña actual</label>
+              <input
+                class="profile__input"
+                id="current-password"
+                name="currentPassword"
+                type="password"
+                autocomplete="current-password"
+                [(ngModel)]="currentPassword"
+                required
+              />
+            </div>
+            <div class="profile__field">
+              <label class="profile__label" for="new-password">Contraseña nueva</label>
+              <input
+                class="profile__input"
+                id="new-password"
+                name="newPassword"
+                type="password"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="Mínimo 8 caracteres"
+                [(ngModel)]="newPassword"
+                required
+              />
+            </div>
+            <div class="profile__field">
+              <label class="profile__label" for="confirm-password">Confirmar contraseña</label>
+              <input
+                class="profile__input"
+                id="confirm-password"
+                name="confirmPassword"
+                type="password"
+                autocomplete="new-password"
+                [(ngModel)]="confirmPassword"
+                required
+              />
+            </div>
+
+            @if (passwordError) {
+            <p class="profile__alert profile__alert--error" role="alert">{{ passwordError }}</p>
+            }
+            @if (passwordSuccess) {
+            <p class="profile__alert profile__alert--ok" role="status">{{ passwordSuccess }}</p>
+            }
+
+            <button
+              class="profile__submit"
+              type="submit"
+              [disabled]="saving || !currentPassword || !newPassword || !confirmPassword"
+            >
+              {{ saving ? 'Guardando…' : 'Actualizar contraseña' }}
+            </button>
+          </form>
+        </section>
+        }
+
+        <div class="profile__footer">
+          <button class="profile__logout" type="button" (click)="onLogout()">
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

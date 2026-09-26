@@ -3,7 +3,10 @@
     <p class="page-header__mark">Taskboard</p>
     <p class="page-header__tagline">{{ tagline }}</p>
   </div>
-  <button class="page-header__logout" type="button" (click)="onLogout()">
-    Cerrar sesión
-  </button>
+  <div class="page-header__actions">
+    <a class="page-header__link" routerLink="/profile">Perfil</a>
+    <button class="page-header__logout" type="button" (click)="onLogout()">
+      Cerrar sesión
+    </button>
+  </div>
 </header>

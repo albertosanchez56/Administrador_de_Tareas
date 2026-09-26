@@ -39,9 +39,36 @@
   color: var(--ink-soft);
 }
 
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.page-header__link {
+  flex-shrink: 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, white 70%, var(--paper));
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.page-header__link:hover {
+  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+  color: var(--ink);
+}
+
 .page-header__logout {
   flex-shrink: 0;
-  margin-top: 0.35rem;
+  margin-top: 0;
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: 0.6rem;

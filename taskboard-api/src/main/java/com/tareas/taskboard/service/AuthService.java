@@ -51,4 +51,8 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(rotated.user());
         return LoginResponse.fromUser(rotated.user(), accessToken, rotated.rawRefreshToken());
     }
+
+    public void logout(String rawRefreshToken) {
+        refreshTokenService.revoke(rawRefreshToken);
+    }
 }

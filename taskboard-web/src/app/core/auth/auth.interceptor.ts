@@ -18,7 +18,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       const isAuthUrl =
         req.url.includes('/api/auth/login') ||
         req.url.includes('/api/auth/register') ||
-        req.url.includes('/api/auth/refresh');
+        req.url.includes('/api/auth/refresh') ||
+        req.url.includes('/api/auth/logout');
 
       if (error.status !== 401 || isAuthUrl || !auth.getRefreshToken()) {
         if (error.status === 401 && !isAuthUrl) {

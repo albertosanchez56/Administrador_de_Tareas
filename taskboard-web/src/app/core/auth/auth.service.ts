@@ -44,6 +44,12 @@ export class AuthService {
     }
 
     logout(): void {
+        const refreshToken = this.getRefreshToken();
+        if (refreshToken) {
+            this.http.post('/api/auth/logout', { refreshToken }).subscribe({
+                error: () => { }, // ignorar: igual limpiamos local
+            });
+        }
         localStorage.removeItem(this.tokenKey);
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userId');
@@ -117,4 +123,6 @@ export class AuthService {
             newPassword,
         });
     }
+
+
 }

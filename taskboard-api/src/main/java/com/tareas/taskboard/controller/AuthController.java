@@ -64,4 +64,11 @@ public class AuthController {
         userService.changePassword(getAuthenticatedUserId(), request);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody(required = false) RefreshRequest request) {
+        String refresh = request != null ? request.refreshToken() : null;
+        authService.logout(refresh);
+        return ResponseEntity.noContent().build();
+    }
 }

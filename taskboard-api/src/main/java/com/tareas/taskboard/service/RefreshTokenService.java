@@ -96,5 +96,20 @@ public class RefreshTokenService {
         }
     }
 
-    public record RotatedRefresh(User user, String rawRefreshToken) {}
+    @Transactional
+    public void revoke(String rawRefreshToken) {
+        if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
+            return; // nada que hacer
+        }
+        refreshTokenRepository.findByTokenHash(hashToken(rawRefreshToken))
+                .ifPresent(token -> {
+                    if (token.getRevokedAt() == null) {
+                        token.setRevokedAt(Instant.now());
+                        refreshTokenRepository.save(token);
+                    }
+                });
+    }
+
+    public record RotatedRefresh(User user, String rawRefreshToken) {
+    }
 }

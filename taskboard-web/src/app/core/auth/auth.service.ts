@@ -10,6 +10,15 @@ export interface LoginResponse {
     refreshToken: string;
 }
 
+export interface UserProfile {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    enabled: boolean;
+    createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private readonly http = inject(HttpClient);
@@ -96,5 +105,16 @@ export class AuthService {
 
     getRefreshToken(): string | null {
         return localStorage.getItem('refreshToken');
+    }
+
+    getMe() {
+        return this.http.get<UserProfile>('/api/auth/me');
+    }
+
+    changePassword(currentPassword: string, newPassword: string) {
+        return this.http.post<void>('/api/auth/change-password', {
+            currentPassword,
+            newPassword,
+        });
     }
 }

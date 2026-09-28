@@ -1,0 +1,26 @@
+# Fase A: solo PostgreSQL para desarrollo local.
+# Uso: desde la raíz del repo → docker compose up -d
+#
+# La API (mvnw) sigue en tu PC y se conecta a localhost:5432
+# con user/password/db = taskboard (igual que application.properties).
+
+services:
+  db:
+    image: postgres:16
+    container_name: taskboard-db
+    environment:
+      POSTGRES_DB: taskboard
+      POSTGRES_USER: taskboard
+      POSTGRES_PASSWORD: taskboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - taskboard_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskboard -d taskboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  taskboard_pgdata:

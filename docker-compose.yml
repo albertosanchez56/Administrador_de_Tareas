@@ -1,8 +1,11 @@
-# Fase A: solo PostgreSQL para desarrollo local.
-# Uso: desde la raíz del repo → docker compose up -d
+# Fase C: Postgres + API
+# Uso (desde la raíz del repo):
+#   1. Copia .env.example → .env y revisa APP_SECURITY_JWT_SECRET
+#   2. docker compose up -d --build
+#   3. API en http://localhost:8081  |  Front local: npm start (proxy a 8081)
 #
-# La API (mvnw) sigue en tu PC y se conecta a localhost:5432
-# con user/password/db = taskboard (igual que application.properties).
+# Dentro de la red Docker, la API llega a Postgres por el hostname "db"
+# (nombre del servicio), no por localhost.
 
 services:
   db:
@@ -21,6 +24,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    build:
+      context: ./taskboard-api
+      dockerfile: Dockerfile
+    container_name: taskboard-api
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/taskboard
+      SPRING_DATASOURCE_USERNAME: taskboard
+      SPRING_DATASOURCE_PASSWORD: taskboard
+      APP_SECURITY_JWT_SECRET: ${APP_SECURITY_JWT_SECRET}
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   taskboard_pgdata:

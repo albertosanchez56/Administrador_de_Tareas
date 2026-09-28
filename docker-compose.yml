@@ -1,11 +1,11 @@
-# Fase C: Postgres + API
+# Fase D: Postgres + API + Front (Nginx)
 # Uso (desde la raíz del repo):
 #   1. Copia .env.example → .env y revisa APP_SECURITY_JWT_SECRET
 #   2. docker compose up -d --build
-#   3. API en http://localhost:8081  |  Front local: npm start (proxy a 8081)
+#   3. App: http://localhost:4200  |  API directa: http://localhost:8081
 #
-# Dentro de la red Docker, la API llega a Postgres por el hostname "db"
-# (nombre del servicio), no por localhost.
+# El navegador llama a /api en el mismo origen (4200);
+# Nginx reenvía /api al servicio "api".
 
 services:
   db:
@@ -42,6 +42,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  web:
+    build:
+      context: ./taskboard-web
+      dockerfile: Dockerfile
+    container_name: taskboard-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
 
 volumes:
   taskboard_pgdata:
